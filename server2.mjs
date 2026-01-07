@@ -273,7 +273,6 @@ City: ${city}
     const response = await client.responses.create({
       model: "gpt-5.2",
       input: prompt,
-      response_format: { type: "text" }, // ✅ ensures output_text is always plain text
     });
 
     res.json({ summary: response.output_text || "" });
