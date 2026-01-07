@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Civic Connect AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<style>
+:root{
+  --text:#0f2f26;--muted:#4b6f63;--dark-green:#006A4E;--white:rgba(255,255,255,0.92);--light-green:#ACE1AF;
+  --glass:rgba(255,255,255,0.25);--shadow:0 12px 40px rgba(0,0,0,0.08);
+  --danger:#b91c1c;--danger-bg:rgba(185,28,28,0.08);--danger-stroke:rgba(185,28,28,0.30);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Alegreya',serif;color:var(--text);background:#D5EEFD}
+.hero-bg{position:fixed;inset:0;background:url('fade_img.png') center/cover no-repeat;opacity:0;animation:fadeIn 2s forwards;z-index:-2}
+@keyframes fadeIn{to{opacity:1}}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--white);border-bottom:1px solid rgba(0,0,0,0.05);position:relative;z-index:2;gap:.8rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.1rem;color:var(--dark-green)}
+.logo-badge{width:34px;height:34px;border-radius:10px;background:var(--dark-green);color:#fff;display:grid;place-items:center;font-size:.9rem}
+nav{display:flex;gap:1.6rem;font-size:.95rem;flex-wrap:wrap}
+nav a{text-decoration:none;color:var(--muted);cursor:pointer}
+nav a.active{color:var(--dark-green);font-weight:600}
+.nav-actions{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+select,button{border-radius:10px;padding:.45rem .8rem;border:1px solid rgba(0,0,0,0.08);background:#fff;font-family:'Alegreya',serif;font-size:.9rem;cursor:pointer}
+.primary{background:var(--dark-green);color:#fff;border:none}
+.secondary{background:#fff;color:var(--dark-green)}
+.call311,.call911{cursor:pointer}
+
+main{max-width:1200px;margin:0 auto;padding:5rem 2rem 2.5rem;display:grid;grid-template-columns:1fr;gap:2.2rem;position:relative;z-index:1}
+
+.hero-content,.page-content,.home-panel{
+  position:relative;display:inline-block;max-width:900px;padding:2rem 2.5rem;border-radius:16px;
+  background:var(--glass);backdrop-filter:blur(6px);overflow:hidden;border:1px solid rgba(255,255,255,0.25)
+}
+.hero-content::before,.page-content::before,.home-panel::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 70%);border-radius:16px
+}
+
+.badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border-radius:999px;background:var(--light-green);color:var(--dark-green);font-size:.85rem;font-weight:500}
+h1{font-size:clamp(2.6rem,4.5vw,3.6rem);margin:1rem 0;line-height:1.1;color:var(--dark-green)}
+.highlight{font-size:.75em;color:#2f8f6a}
+p{color:var(--muted);font-size:1.1rem;max-width:720px}
+.cta{display:flex;gap:1rem;margin-top:2.2rem;flex-wrap:wrap}
+.cta button{padding:.85rem 1.3rem;font-size:1.05rem;border-radius:14px}
+.features{display:flex;gap:1.6rem;margin-top:2.2rem;color:var(--muted);font-size:.95rem;flex-wrap:wrap}
+
+/* How it works */
+.home-title{text-align:center;margin:0 0 .4rem;font-size:2.2rem;font-weight:700;color:var(--dark-green)}
+.home-sub{text-align:center;margin:0 auto 1.6rem;color:var(--muted);font-size:1.1rem;max-width:820px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.6rem}
+.step{position:relative;text-align:center;padding:1.2rem .8rem .6rem;border-radius:14px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.22)}
+.step-num{position:absolute;left:50%;transform:translateX(-50%);top:-14px;width:34px;height:34px;border-radius:50%;background:var(--dark-green);color:#fff;display:grid;place-items:center;font-weight:700;border:2px solid rgba(255,255,255,0.55)}
+.step-icon{width:68px;height:68px;border-radius:18px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.30);display:grid;place-items:center;margin:1.2rem auto 1rem}
+.step-icon svg{width:30px;height:30px;stroke:var(--dark-green)}
+.step h3{margin:.1rem 0 .45rem;font-size:1.35rem;color:var(--dark-green)}
+.step p{margin:0 auto;font-size:1.05rem;color:var(--muted);max-width:320px}
+
+/* Footer */
+.footer-wrap{width:100%;padding:0 0 2.2rem}
+.emergency-bar{max-width:1200px;margin:0 auto 1.1rem;padding:0 2rem}
+.emergency-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.05rem 1.2rem;background:var(--danger-bg);border:1px solid var(--danger-stroke);border-left:6px solid var(--danger);border-radius:14px;backdrop-filter:blur(6px)}
+.em-left{display:flex;align-items:flex-start;gap:.9rem}
+.em-badge{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(185,28,28,0.10);border:1px solid rgba(185,28,28,0.18)}
+.em-badge svg{width:22px;height:22px;stroke:var(--danger)}
+.em-text strong{display:block;font-size:1.05rem;margin-bottom:.15rem;color:rgba(0,0,0,0.78)}
+.em-text span{color:rgba(0,0,0,0.55)}
+.em-btn{background:var(--danger);color:#fff;border:none;padding:.7rem 1rem;border-radius:12px;font-weight:700;display:flex;align-items:center;gap:.55rem;white-space:nowrap}
+
+.site-footer{max-width:1200px;margin:0 auto;padding:0 2rem}
+.footer-card{background:rgba(255,255,255,0.60);border:1px solid rgba(255,255,255,0.35);border-radius:18px;padding:2rem 2rem 1.2rem;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:1.8rem}
+.footer-brand{display:flex;gap:.9rem;align-items:flex-start}
+.footer-brand .cc{width:44px;height:44px;border-radius:12px;background:var(--dark-green);color:#fff;display:grid;place-items:center;font-weight:800}
+.footer-brand h4{margin:0;font-size:1.2rem;color:var(--dark-green)}
+.footer-brand p{margin:.35rem 0 .9rem;color:var(--muted);font-size:1.02rem;max-width:420px}
+.lang-pills{display:flex;flex-wrap:wrap;gap:.55rem}
+.pill{border:1px solid rgba(0,106,78,0.22);color:rgba(15,47,38,0.78);background:rgba(255,255,255,0.55);padding:.35rem .75rem;border-radius:999px;font-size:.95rem;cursor:pointer}
+.pill.active{border-color:rgba(0,106,78,0.55);color:var(--dark-green);font-weight:700;background:rgba(255,255,255,0.70)}
+.footer-col h5{margin:0 0 .8rem;font-size:1.15rem;color:rgba(0,0,0,0.78)}
+.footer-links{display:flex;flex-direction:column;gap:.6rem}
+.footer-links a{color:var(--muted);text-decoration:none;cursor:pointer}
+.footer-links a:hover{text-decoration:underline}
+.help-item{display:flex;gap:.6rem;align-items:center;color:var(--muted);text-decoration:none;cursor:pointer}
+.help-item svg{width:18px;height:18px;stroke:rgba(15,47,38,0.55)}
+.footer-bottom{border-top:1px solid rgba(0,0,0,0.08);margin-top:1.4rem;padding-top:1rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:rgba(0,0,0,0.52);font-size:.95rem}
+.footer-bottom a{color:rgba(0,0,0,0.55);text-decoration:none;cursor:pointer}
+.footer-bottom a:hover{text-decoration:underline}
+
+/* Modal */
+#modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;justify-content:center;align-items:center;z-index:999}
+.modalContent{background:#fff;padding:2rem;border-radius:16px;max-width:400px;width:90%;position:relative;box-shadow:0 8px 20px rgba(0,0,0,0.2);text-align:center}
+.closeModal{position:absolute;top:12px;right:16px;font-size:1.5rem;cursor:pointer}
+.modalStep{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
+.modalStep input,.modalStep label{width:100%;text-align:left}
+#modalForm button{padding:.75rem;font-size:1rem;border-radius:12px}
+.more-btn{margin:.5rem 0;background:var(--light-green);border:none;padding:.6rem;font-weight:500;border-radius:10px;cursor:pointer}
+
+@media(max-width:900px){
+  main{padding:3rem 1rem 2rem}
+  header{padding:1rem}
+  .hero-content,.page-content,.home-panel{padding:1.5rem}
+  .steps{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .emergency-bar,.site-footer{padding:0 1rem}
+}
+</style>
+</head>
+
+<body>
+<div class="hero-bg"></div>
+
+<header>
+  <div class="logo"><div class="logo-badge">CC</div><span id="brand">CivicConnect AI</span></div>
+  <nav>
+    <a class="active" id="navHome">Home</a>
+    <a id="navFind">Find Resources</a>
+    <a id="navBrowse">Browse All</a>
+    <a id="navMore">More About Us</a>
+  </nav>
+
+  <div class="nav-actions">
+    <select id="languageSelect">
+      <option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
+      <option value="it">Italiano</option><option value="pt">Português</option><option value="zh">中文</option><option value="ja">日本語</option>
+      <option value="ko">한국어</option><option value="ar">العربية</option><option value="ru">Русский</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option>
+    </select>
+
+    <button class="call311" id="btnCall311Top">📞 <span id="call311">Call 311</span></button>
+    <button class="call911" id="btnCall911Top">🚨 <span id="call911">Call 911</span></button>
+
+    <div id="profileBox"
+     style="display:flex;align-items:center;gap:0.6rem;margin-left:1rem;
+            font-weight:500;color:var(--dark-green);
+            cursor:pointer;">      <img id="profileAvatar" src="" style="width:36px;height:36px;border-radius:50%;display:none;">
+      <span id="profileGreeting">Hello, user!</span>
+    </div>
+  </div>
+</header>
+
+<main id="mainContent"></main>
+<div id="homeFooterMount"></div>
+
+<div id="modalOverlay">
+  <div class="modalContent" id="modalContent">
+    <span class="closeModal">&times;</span>
+    <h2 id="modalTitle">Sign Up</h2>
+    <div id="modalBody"></div>
+
+    <form id="signupStep1" class="modalStep">
+      <input type="email" id="signupEmail" placeholder="Email" required>
+      <div style="position:relative;">
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <span id="togglePassword" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:0.9rem;">👁</span>
+      </div>
+      <button class="primary" id="btnNext1" type="submit">Next</button>
+    </form>
+
+    <form id="signupStep2" class="modalStep">
+      <input type="text" id="firstName" placeholder="First name" required>
+      <input type="text" id="lastName" placeholder="Last name" required>
+      <button class="primary" id="btnNext2" type="submit">Next</button>
+    </form>
+
+    <form id="signupStep3" class="modalStep">
+      <label id="choosePicLabel">Choose a profile picture</label>
+      <div id="profileChoices" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:0.5rem;"></div>
+      <button class="primary" id="btnFinish" type="submit">Finish</button>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ================== LANGUAGE PERSIST ================== */
+const LANG_KEY = "cc_lang";
+function getLangFromUrl(){
+  const u = new URL(window.location.href);
+  return u.searchParams.get("lang");
+}
+function getSavedLang(){
+  return localStorage.getItem(LANG_KEY);
+}
+function setSavedLang(lang){
+  localStorage.setItem(LANG_KEY, lang);
+}
+
+/* ================== EMAILJS INIT ================== */
+let currentUserEmail = localStorage.getItem("loggedInUser");
+
+
+(function(){ emailjs.init("eEdU9v8ymWSI6uD"); })();
+
+/* ================== TRANSLATIONS ================== */
+const translations = {
+  en:{
+    brand:"CivicConnect AI",navHome:"Home",navFind:"Find Resources",navBrowse:"Browse All",navMore:"More About Us",
+    call311:"Call 311",call911:"Call 911",
+    badge:"● Free & Multilingual",headline1:"Find Local Help",headline2:"When You Need It Most",
+    subtext:"Get connected to trusted U.S. resources for food, health, housing, and more — in your language.",
+    btnLogin:"Log In",btnSignup:"Sign Up",
+    f1:"✔ Verified Resources",f2:"🌐 10+ Languages",f3:"💚 100% Free",
+    howTitle:"How It Works",howSub:"Get connected to local help in three simple steps",
+    step1Title:"Tell Us About You",step1Body:"Answer a few quick questions about your situation and needs.",
+    step2Title:"Get Matched",step2Body:"Our AI finds the best local resources for your specific needs.",
+    step3Title:"Take Action",step3Body:"Get step-by-step guidance to access help right away.",
+    emStrong:"Need immediate help?",emSpan:"Call 911 | 988 Suicide & Crisis",
+    btnCall311BottomText:"Call 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Turning confusion into clarity. We help families find verified local resources before small problems become costly crises.",
+    quickLinksTitle:"Quick Links",getHelpTitle:"Get Help",
+    footerHome:"Home",footerFind:"Find Resources",footerBrowse:"Browse All",footerMore:"About CivicConnect AI",
+    footerCall311Text:"Call 311",footerContactText:"Contact Us",
+    footerNote:"Resources are verified regularly but may change. Always call ahead to confirm.",
+    privacyText:"Privacy Policy",termsText:"Terms of Service",
+    signupEmail:"Email",signupPassword:"Password",firstName:"First name",lastName:"Last name",
+    choosePicLabel:"Choose a profile picture",
+    btnNext1:"Next",btnNext2:"Next",btnFinish:"Finish",
+    greetGuest:"Hello, user!",greetUser:"Hello, {name}!",
+
+    moreTitle:"More About Us",
+    moreQ1:"Who are the creators?",
+    moreA1:"Meet Lucy Johnston, Vardeni Vardanyan, and Oscar von Brockdorff, the creators of this website. They are seventh graders at Proof School, a school for kids who love math, in San Francisco, California.",
+    moreQ2:"What's this website for?",
+    moreA2:"This website helps immigrants and families quickly find the right local services by turning simple survey answers into clear, personalized guidance using AI.",
+    moreQ3:"Who built this site?",
+    moreA3:"We are seventh graders passionate about education, technology, and making government services easier to understand.",
+    moreQ4:"Is it free?",
+    moreA4:"Yes! CivicConnect AI is 100% free to use.",
+    moreQ5:"Do I need an account?",
+    moreA5:"Yes, you can create an account using your email to save your progress.",
+    moreQ6:"Which languages are supported?",
+    moreA6:"We currently support more than 10 languages and are adding more over time.",
+    moreQ7:"How can I contact you?",
+    moreA7:"You can contact us at Civicconnectaiwebsite@gmail.com",
+    moreQ8:"Are the resources verified?",
+    moreA8:"Yes. We verify all resources before adding them to ensure accuracy and safety.",
+    moreQ9:"What resources are available?",
+    moreA9:"You can explore food assistance, housing help, healthcare, legal aid, and more under 'Find Resources'."
+  },
+
+  es:{
+    brand:"CivicConnect AI",navHome:"Inicio",navFind:"Buscar Recursos",navBrowse:"Explorar Todo",navMore:"Más Sobre Nosotros",
+    call311:"Llamar al 311",call911:"Llamar al 911",
+    badge:"● Gratis y Multilingüe",headline1:"Encuentra Ayuda Local",headline2:"Cuando Más La Necesitas",
+    subtext:"Conéctate con recursos confiables en EE. UU. para alimentos, salud, vivienda y más — en tu idioma.",
+    btnLogin:"Iniciar Sesión",btnSignup:"Registrarse",
+    f1:"✔ Recursos Verificados",f2:"🌐 10+ Idiomas",f3:"💚 100% Gratis",
+    howTitle:"Cómo Funciona",howSub:"Conéctate con ayuda local en tres pasos sencillos",
+    step1Title:"Cuéntanos Sobre Ti",step1Body:"Responde unas preguntas rápidas sobre tu situación y necesidades.",
+    step2Title:"Encuentra Opciones",step2Body:"Nuestra IA encuentra los mejores recursos locales para tus necesidades.",
+    step3Title:"Da el Siguiente Paso",step3Body:"Recibe pasos claros para acceder a la ayuda de inmediato.",
+    emStrong:"¿Necesitas ayuda inmediata?",emSpan:"Llama al 911 | 988 Apoyo en crisis",
+    btnCall311BottomText:"Llamar al 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Convertimos la confusión en claridad. Ayudamos a las familias a encontrar recursos locales verificados antes de que pequeños problemas se vuelvan grandes.",
+    quickLinksTitle:"Enlaces Rápidos",getHelpTitle:"Obtener Ayuda",
+    footerHome:"Inicio",footerFind:"Buscar Recursos",footerBrowse:"Explorar Todo",footerMore:"Sobre CivicConnect AI",
+    footerCall311Text:"Llamar al 311",footerContactText:"Contáctanos",
+    footerNote:"Verificamos recursos con frecuencia, pero pueden cambiar. Llama antes para confirmar.",
+    privacyText:"Política de Privacidad",termsText:"Términos del Servicio",
+    signupEmail:"Correo electrónico",signupPassword:"Contraseña",firstName:"Nombre",lastName:"Apellido",
+    choosePicLabel:"Elige una foto de perfil",
+    btnNext1:"Siguiente",btnNext2:"Siguiente",btnFinish:"Finalizar",
+    greetGuest:"¡Hola!",greetUser:"¡Hola, {name}!",
+
+    moreTitle:"Más Sobre Nosotros",
+    moreQ1:"¿Quiénes son los creadores?",
+    moreA1:"Conoce a Lucy Johnston, Vardeni Vardanyan y Oscar von Brockdorff, los creadores de este sitio web. Son estudiantes de séptimo grado en Proof School, una escuela para niños que aman las matemáticas, en San Francisco, California.",
+    moreQ2:"¿Para qué es este sitio web?",
+    moreA2:"Este sitio ayuda a inmigrantes y familias a encontrar rápidamente los servicios locales correctos convirtiendo respuestas simples de una encuesta en una guía clara y personalizada usando IA.",
+    moreQ3:"¿Quién construyó este sitio?",
+    moreA3:"Somos estudiantes de séptimo grado apasionados por la educación, la tecnología y por hacer que los servicios del gobierno sean más fáciles de entender.",
+    moreQ4:"¿Es gratis?",
+    moreA4:"¡Sí! CivicConnect AI es 100% gratis.",
+    moreQ5:"¿Necesito una cuenta?",
+    moreA5:"Sí, puedes crear una cuenta usando tu correo electrónico para guardar tu progreso.",
+    moreQ6:"¿Qué idiomas están disponibles?",
+    moreA6:"Actualmente admitimos más de 10 idiomas y agregamos más con el tiempo.",
+    moreQ7:"¿Cómo puedo contactarlos?",
+    moreA7:"Puedes contactarnos en Civicconnectaiwebsite@gmail.com",
+    moreQ8:"¿Los recursos están verificados?",
+    moreA8:"Sí. Verificamos todos los recursos antes de agregarlos para garantizar precisión y seguridad.",
+    moreQ9:"¿Qué recursos hay disponibles?",
+    moreA9:"Puedes explorar ayuda de alimentos, ayuda de vivienda, atención médica, ayuda legal y más en “Buscar Recursos”."
+  },
+
+  fr:{
+    brand:"CivicConnect AI",navHome:"Accueil",navFind:"Trouver des Ressources",navBrowse:"Tout Parcourir",navMore:"En Savoir Plus",
+    call311:"Appeler le 311",call911:"Appeler le 911",
+    badge:"● Gratuit et Multilingue",headline1:"Trouvez de l’Aide Locale",headline2:"Quand Vous en Avez Besoin",
+    subtext:"Accédez à des ressources fiables aux États-Unis pour l’alimentation, la santé, le logement et plus — dans votre langue.",
+    btnLogin:"Connexion",btnSignup:"S'inscrire",
+    f1:"✔ Ressources Vérifiées",f2:"🌐 10+ Langues",f3:"💚 100% Gratuit",
+    howTitle:"Comment Ça Marche",howSub:"Accédez à de l’aide locale en trois étapes simples",
+    step1Title:"Parlez-nous de Vous",step1Body:"Répondez à quelques questions rapides sur votre situation et vos besoins.",
+    step2Title:"Recevez des Suggestions",step2Body:"Notre IA trouve les meilleures ressources locales selon vos besoins.",
+    step3Title:"Passez à l’Action",step3Body:"Obtenez des étapes claires pour accéder à l’aide rapidement.",
+    emStrong:"Besoin d’aide immédiate ?",emSpan:"Appelez le 911 | 988 Soutien de crise",
+    btnCall311BottomText:"Appeler le 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"De la confusion à la clarté. Nous aidons les familles à trouver des ressources locales vérifiées avant que de petits problèmes ne deviennent sérieux.",
+    quickLinksTitle:"Liens Rapides",getHelpTitle:"Obtenir de l’Aide",
+    footerHome:"Accueil",footerFind:"Trouver des Ressources",footerBrowse:"Tout Parcourir",footerMore:"À propos de CivicConnect AI",
+    footerCall311Text:"Appeler le 311",footerContactText:"Nous contacter",
+    footerNote:"Les ressources sont vérifiées régulièrement mais peuvent changer. Appelez pour confirmer.",
+    privacyText:"Politique de Confidentialité",termsText:"Conditions d’Utilisation",
+    signupEmail:"E-mail",signupPassword:"Mot de passe",firstName:"Prénom",lastName:"Nom",
+    choosePicLabel:"Choisissez une photo de profil",
+    btnNext1:"Suivant",btnNext2:"Suivant",btnFinish:"Terminer",
+    greetGuest:"Bonjour !",greetUser:"Bonjour, {name} !",
+
+    moreTitle:"En Savoir Plus",
+    moreQ1:"Qui sont les créateurs ?",
+    moreA1:"Découvrez Lucy Johnston, Vardeni Vardanyan et Oscar von Brockdorff, les créateurs de ce site. Ce sont des élèves de 7e à Proof School, une école pour les enfants qui aiment les maths, à San Francisco, en Californie.",
+    moreQ2:"À quoi sert ce site web ?",
+    moreA2:"Ce site aide les immigrés et les familles à trouver rapidement les bons services locaux en transformant des réponses simples d’enquête en conseils clairs et personnalisés grâce à l’IA.",
+    moreQ3:"Qui a construit ce site ?",
+    moreA3:"Nous sommes des élèves de 7e passionnés par l’éducation, la technologie et l’idée de rendre les services publics plus faciles à comprendre.",
+    moreQ4:"Est-ce gratuit ?",
+    moreA4:"Oui ! CivicConnect AI est 100% gratuit.",
+    moreQ5:"Ai-je besoin d’un compte ?",
+    moreA5:"Oui, vous pouvez créer un compte avec votre e-mail pour enregistrer votre progression.",
+    moreQ6:"Quelles langues sont prises en charge ?",
+    moreA6:"Nous prenons en charge plus de 10 langues et en ajoutons au fil du temps.",
+    moreQ7:"Comment vous contacter ?",
+    moreA7:"Vous pouvez nous contacter à Civicconnectaiwebsite@gmail.com",
+    moreQ8:"Les ressources sont-elles vérifiées ?",
+    moreA8:"Oui. Nous vérifions toutes les ressources avant de les ajouter afin d’assurer exactitude et sécurité.",
+    moreQ9:"Quelles ressources sont disponibles ?",
+    moreA9:"Vous pouvez explorer l’aide alimentaire, le logement, la santé, l’aide juridique et plus encore via « Trouver des Ressources »."
+  },
+
+  de:{
+    brand:"CivicConnect AI",navHome:"Startseite",navFind:"Ressourcen Finden",navBrowse:"Alle Durchsuchen",navMore:"Mehr Über Uns",
+    call311:"311 Anrufen",call911:"911 Anrufen",
+    badge:"● Kostenlos & Mehrsprachig",headline1:"Lokale Hilfe Finden",headline2:"Wenn Sie Sie Brauchen",
+    subtext:"Verbinden Sie sich mit vertrauenswürdigen Ressourcen in den USA für Ernährung, Gesundheit, Wohnen und mehr — in Ihrer Sprache.",
+    btnLogin:"Einloggen",btnSignup:"Registrieren",
+    f1:"✔ Verifizierte Ressourcen",f2:"🌐 10+ Sprachen",f3:"💚 100% Kostenlos",
+    howTitle:"So Funktioniert’s",howSub:"In drei einfachen Schritten zu lokaler Hilfe",
+    step1Title:"Erzählen Sie Uns von Ihnen",step1Body:"Beantworten Sie ein paar kurze Fragen zu Ihrer Situation und Ihren Bedürfnissen.",
+    step2Title:"Passende Hilfe Finden",step2Body:"Unsere KI findet die besten lokalen Angebote für Ihre Bedürfnisse.",
+    step3Title:"Jetzt Loslegen",step3Body:"Erhalten Sie klare Schritte, um schnell Hilfe zu bekommen.",
+    emStrong:"Brauchen Sie sofort Hilfe?",emSpan:"Rufen Sie 911 an | 988 Krisenhilfe",
+    btnCall311BottomText:"311 Anrufen",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Wir machen aus Verwirrung Klarheit. Wir helfen Familien, verifizierte lokale Angebote zu finden, bevor kleine Probleme größer werden.",
+    quickLinksTitle:"Schnelllinks",getHelpTitle:"Hilfe Bekommen",
+    footerHome:"Startseite",footerFind:"Ressourcen Finden",footerBrowse:"Alle Durchsuchen",footerMore:"Über CivicConnect AI",
+    footerCall311Text:"311 Anrufen",footerContactText:"Kontakt",
+    footerNote:"Ressourcen werden regelmäßig geprüft, können sich aber ändern. Bitte vorher anrufen.",
+    privacyText:"Datenschutz",termsText:"Nutzungsbedingungen",
+    signupEmail:"E-Mail",signupPassword:"Passwort",firstName:"Vorname",lastName:"Nachname",
+    choosePicLabel:"Profilbild auswählen",
+    btnNext1:"Weiter",btnNext2:"Weiter",btnFinish:"Fertig",
+    greetGuest:"Hallo!",greetUser:"Hallo, {name}!",
+
+    moreTitle:"Mehr Über Uns",
+    moreQ1:"Wer sind die Ersteller?",
+    moreA1:"Lernen Sie Lucy Johnston, Vardeni Vardanyan und Oscar von Brockdorff kennen, die Ersteller dieser Website. Sie sind Siebtklässler an der Proof School, einer Schule für Kinder, die Mathe lieben, in San Francisco, Kalifornien.",
+    moreQ2:"Wofür ist diese Website?",
+    moreA2:"Diese Website hilft Einwanderern und Familien, schnell die richtigen lokalen Angebote zu finden, indem einfache Umfrageantworten mit KI in klare, personalisierte Schritte umgewandelt werden.",
+    moreQ3:"Wer hat diese Website gebaut?",
+    moreA3:"Wir sind Siebtklässler und interessieren uns für Bildung, Technologie und dafür, staatliche Angebote leichter verständlich zu machen.",
+    moreQ4:"Ist es kostenlos?",
+    moreA4:"Ja! CivicConnect AI ist 100% kostenlos.",
+    moreQ5:"Brauche ich ein Konto?",
+    moreA5:"Ja, Sie können ein Konto mit Ihrer E-Mail erstellen, um Ihren Fortschritt zu speichern.",
+    moreQ6:"Welche Sprachen werden unterstützt?",
+    moreA6:"Wir unterstützen derzeit mehr als 10 Sprachen und fügen im Laufe der Zeit weitere hinzu.",
+    moreQ7:"Wie kann ich euch kontaktieren?",
+    moreA7:"Sie können uns unter Civicconnectaiwebsite@gmail.com kontaktieren",
+    moreQ8:"Sind die Ressourcen verifiziert?",
+    moreA8:"Ja. Wir prüfen alle Ressourcen, bevor wir sie hinzufügen, um Genauigkeit und Sicherheit zu gewährleisten.",
+    moreQ9:"Welche Ressourcen sind verfügbar?",
+    moreA9:"Sie können Lebensmittelhilfe, Wohnhilfe, Gesundheitsangebote, Rechtsberatung und mehr unter „Ressourcen Finden“ entdecken."
+  },
+
+  it:{
+    brand:"CivicConnect AI",navHome:"Home",navFind:"Trova Risorse",navBrowse:"Sfoglia Tutto",navMore:"Altro Su Di Noi",
+    call311:"Chiama 311",call911:"Chiama 911",
+    badge:"● Gratuito e Multilingue",headline1:"Trova Aiuto Locale",headline2:"Quando Ne Hai Bisogno",
+    subtext:"Collegati a risorse affidabili negli Stati Uniti per cibo, salute, alloggio e altro — nella tua lingua.",
+    btnLogin:"Accedi",btnSignup:"Registrati",
+    f1:"✔ Risorse Verificate",f2:"🌐 10+ Lingue",f3:"💚 100% Gratuito",
+    howTitle:"Come Funziona",howSub:"Connettiti all’aiuto locale in tre semplici passi",
+    step1Title:"Parlaci di Te",step1Body:"Rispondi a poche domande rapide sulla tua situazione e sui tuoi bisogni.",
+    step2Title:"Trova le Opzioni Migliori",step2Body:"La nostra IA trova le risorse locali più adatte alle tue esigenze.",
+    step3Title:"Agisci Subito",step3Body:"Ricevi istruzioni chiare per ottenere aiuto rapidamente.",
+    emStrong:"Hai bisogno di aiuto immediato?",emSpan:"Chiama 911 | 988 Supporto in crisi",
+    btnCall311BottomText:"Chiama 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Dalla confusione alla chiarezza. Aiutiamo le famiglie a trovare risorse locali verificate prima che piccoli problemi diventino grandi.",
+    quickLinksTitle:"Link Rapidi",getHelpTitle:"Ottieni Aiuto",
+    footerHome:"Home",footerFind:"Trova Risorse",footerBrowse:"Sfoglia Tutto",footerMore:"Info su CivicConnect AI",
+    footerCall311Text:"Chiama 311",footerContactText:"Contattaci",
+    footerNote:"Le risorse vengono verificate spesso ma possono cambiare. Chiama prima per confermare.",
+    privacyText:"Privacy",termsText:"Termini di Servizio",
+    signupEmail:"Email",signupPassword:"Password",firstName:"Nome",lastName:"Cognome",
+    choosePicLabel:"Scegli una foto profilo",
+    btnNext1:"Avanti",btnNext2:"Avanti",btnFinish:"Fine",
+    greetGuest:"Ciao!",greetUser:"Ciao, {name}!",
+
+    moreTitle:"Altro Su Di Noi",
+    moreQ1:"Chi sono i creatori?",
+    moreA1:"Scopri Lucy Johnston, Vardeni Vardanyan e Oscar von Brockdorff, i creatori di questo sito. Sono studenti di settima classe alla Proof School, una scuola per ragazzi che amano la matematica, a San Francisco, California.",
+    moreQ2:"A cosa serve questo sito?",
+    moreA2:"Questo sito aiuta immigrati e famiglie a trovare rapidamente i servizi locali giusti trasformando risposte semplici del sondaggio in indicazioni chiare e personalizzate usando l’IA.",
+    moreQ3:"Chi ha costruito questo sito?",
+    moreA3:"Siamo studenti di settima classe appassionati di educazione, tecnologia e di rendere i servizi del governo più facili da capire.",
+    moreQ4:"È gratuito?",
+    moreA4:"Sì! CivicConnect AI è 100% gratuito.",
+    moreQ5:"Ho bisogno di un account?",
+    moreA5:"Sì, puoi creare un account usando la tua email per salvare i tuoi progressi.",
+    moreQ6:"Quali lingue sono supportate?",
+    moreA6:"Attualmente supportiamo più di 10 lingue e ne aggiungiamo altre nel tempo.",
+    moreQ7:"Come posso contattarvi?",
+    moreA7:"Puoi contattarci a Civicconnectaiwebsite@gmail.com",
+    moreQ8:"Le risorse sono verificate?",
+    moreA8:"Sì. Verifichiamo tutte le risorse prima di aggiungerle per garantire accuratezza e sicurezza.",
+    moreQ9:"Quali risorse sono disponibili?",
+    moreA9:"Puoi esplorare aiuti alimentari, supporto per l’alloggio, assistenza sanitaria, aiuto legale e altro in “Trova Risorse”."
+  },
+
+  pt:{
+    brand:"CivicConnect AI",navHome:"Início",navFind:"Encontrar Recursos",navBrowse:"Navegar Tudo",navMore:"Mais Sobre Nós",
+    call311:"Ligar 311",call911:"Ligar 911",
+    badge:"● Gratuito e Multilíngue",headline1:"Encontre Ajuda Local",headline2:"Quando Você Precisar",
+    subtext:"Conecte-se a recursos confiáveis nos EUA para alimentação, saúde, moradia e muito mais — no seu idioma.",
+    btnLogin:"Entrar",btnSignup:"Registrar",
+    f1:"✔ Recursos Verificados",f2:"🌐 10+ Línguas",f3:"💚 100% Gratuito",
+    howTitle:"Como Funciona",howSub:"Conecte-se a ajuda local em três passos simples",
+    step1Title:"Conte Sobre Você",step1Body:"Responda algumas perguntas rápidas sobre sua situação e necessidades.",
+    step2Title:"Receba Recomendações",step2Body:"Nossa IA encontra os melhores recursos locais para você.",
+    step3Title:"Tome uma Ação",step3Body:"Receba orientações claras para acessar ajuda rapidamente.",
+    emStrong:"Precisa de ajuda imediata?",emSpan:"Ligue 911 | 988 Apoio em crise",
+    btnCall311BottomText:"Ligar 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Transformamos confusão em clareza. Ajudamos famílias a encontrar recursos locais verificados antes que problemas pequenos cresçam.",
+    quickLinksTitle:"Links Rápidos",getHelpTitle:"Obter Ajuda",
+    footerHome:"Início",footerFind:"Encontrar Recursos",footerBrowse:"Navegar Tudo",footerMore:"Sobre a CivicConnect AI",
+    footerCall311Text:"Ligar 311",footerContactText:"Fale Conosco",
+    footerNote:"Os recursos são verificados regularmente, mas podem mudar. Ligue antes para confirmar.",
+    privacyText:"Política de Privacidade",termsText:"Termos de Serviço",
+    signupEmail:"E-mail",signupPassword:"Senha",firstName:"Nome",lastName:"Sobrenome",
+    choosePicLabel:"Escolha uma foto de perfil",
+    btnNext1:"Próximo",btnNext2:"Próximo",btnFinish:"Concluir",
+    greetGuest:"Olá!",greetUser:"Olá, {name}!",
+
+    moreTitle:"Mais Sobre Nós",
+    moreQ1:"Quem são os criadores?",
+    moreA1:"Conheça Lucy Johnston, Vardeni Vardanyan e Oscar von Brockdorff, os criadores deste site. Eles são alunos do 7º ano na Proof School, uma escola para crianças que amam matemática, em San Francisco, Califórnia.",
+    moreQ2:"Para que serve este site?",
+    moreA2:"Este site ajuda imigrantes e famílias a encontrar rapidamente os serviços locais certos, transformando respostas simples do questionário em orientações claras e personalizadas usando IA.",
+    moreQ3:"Quem construiu este site?",
+    moreA3:"Somos alunos do 7º ano apaixonados por educação, tecnologia e por tornar os serviços do governo mais fáceis de entender.",
+    moreQ4:"É gratuito?",
+    moreA4:"Sim! O CivicConnect AI é 100% gratuito.",
+    moreQ5:"Preciso de uma conta?",
+    moreA5:"Sim, você pode criar uma conta com seu e-mail para salvar seu progresso.",
+    moreQ6:"Quais idiomas são suportados?",
+    moreA6:"Atualmente suportamos mais de 10 idiomas e adicionamos mais ao longo do tempo.",
+    moreQ7:"Como posso entrar em contato?",
+    moreA7:"Você pode falar conosco em Civicconnectaiwebsite@gmail.com",
+    moreQ8:"Os recursos são verificados?",
+    moreA8:"Sim. Verificamos todos os recursos antes de adicioná-los para garantir precisão e segurança.",
+    moreQ9:"Quais recursos estão disponíveis?",
+    moreA9:"Você pode explorar assistência alimentar, ajuda com moradia, saúde, ajuda jurídica e muito mais em “Encontrar Recursos”."
+  },
+
+  zh:{
+    brand:"CivicConnect AI",navHome:"主页",navFind:"查找资源",navBrowse:"浏览全部",navMore:"关于我们",
+    call311:"拨打 311",call911:"拨打 911",
+    badge:"● 免费 & 多语言",headline1:"查找本地帮助",headline2:"在您需要的时候",
+    subtext:"获取美国可信的食品、健康、住房等资源 — 使用您的语言。",
+    btnLogin:"登录",btnSignup:"注册",
+    f1:"✔ 已验证资源",f2:"🌐 10+ 语言",f3:"💚 100% 免费",
+    howTitle:"使用方法",howSub:"三步轻松连接本地帮助",
+    step1Title:"告诉我们你的情况",step1Body:"回答几个关于你情况和需求的简短问题。",
+    step2Title:"获取匹配结果",step2Body:"我们的 AI 会为你找到最合适的本地资源。",
+    step3Title:"立即行动",step3Body:"获得清晰步骤，帮助你尽快获取支持。",
+    emStrong:"需要紧急帮助？",emSpan:"拨打 911 | 988 危机援助",
+    btnCall311BottomText:"拨打 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"把困惑变清晰。我们帮助家庭找到经过验证的本地资源，避免小问题变大。",
+    quickLinksTitle:"快速链接",getHelpTitle:"获取帮助",
+    footerHome:"主页",footerFind:"查找资源",footerBrowse:"浏览全部",footerMore:"关于 CivicConnect AI",
+    footerCall311Text:"拨打 311",footerContactText:"联系我们",
+    footerNote:"资源会定期核实，但可能变化。请先致电确认。",
+    privacyText:"隐私政策",termsText:"服务条款",
+    signupEmail:"邮箱",signupPassword:"密码",firstName:"名",lastName:"姓",
+    choosePicLabel:"选择头像",
+    btnNext1:"下一步",btnNext2:"下一步",btnFinish:"完成",
+    greetGuest:"你好！",greetUser:"你好，{name}！",
+
+    moreTitle:"关于我们",
+    moreQ1:"创作者是谁？",
+    moreA1:"认识 Lucy Johnston、Vardeni Vardanyan 和 Oscar von Brockdorff——本网站的创建者。他们是旧金山 Proof School 的七年级学生，这所学校面向热爱数学的孩子，位于加利福尼亚州旧金山。",
+    moreQ2:"这个网站是做什么的？",
+    moreA2:"本网站通过将简单的问卷回答转化为清晰、个性化的指导，帮助移民和家庭快速找到合适的本地服务，并使用 AI 提供支持。",
+    moreQ3:"是谁建了这个网站？",
+    moreA3:"我们是七年级学生，热爱教育与科技，并希望让政府服务更容易理解。",
+    moreQ4:"免费吗？",
+    moreA4:"是的！CivicConnect AI 完全免费使用。",
+    moreQ5:"需要账号吗？",
+    moreA5:"你可以用邮箱创建账号来保存进度（建议创建）。",
+    moreQ6:"支持哪些语言？",
+    moreA6:"目前支持 10+ 种语言，并会持续增加。",
+    moreQ7:"如何联系你们？",
+    moreA7:"你可以发邮件到 Civicconnectaiwebsite@gmail.com 联系我们。",
+    moreQ8:"资源都验证过吗？",
+    moreA8:"是的。我们在添加之前会验证所有资源，以确保准确与安全。",
+    moreQ9:"有哪些资源？",
+    moreA9:"你可以在“查找资源”中探索食品援助、住房帮助、医疗服务、法律援助等。"
+  },
+
+  ja:{
+    brand:"CivicConnect AI",navHome:"ホーム",navFind:"リソースを探す",navBrowse:"すべて見る",navMore:"私たちについて",
+    call311:"311 に電話",call911:"911 に電話",
+    badge:"● 無料＆多言語",headline1:"地域の支援を探す",headline2:"必要なときに",
+    subtext:"食料、健康、住居などの信頼できる米国の支援情報を — あなたの言語で。",
+    btnLogin:"ログイン",btnSignup:"サインアップ",
+    f1:"✔ 認証済みリソース",f2:"🌐 10+ 言語",f3:"💚 100% 無料",
+    howTitle:"使い方",howSub:"3つの簡単なステップで支援につながります",
+    step1Title:"状況を教えてください",step1Body:"あなたの状況や必要な支援について、いくつかの質問に答えます。",
+    step2Title:"おすすめを表示",step2Body:"AIがあなたに合った地域の支援先を探します。",
+    step3Title:"次の行動へ",step3Body:"すぐに利用できるよう、手順をわかりやすく案内します。",
+    emStrong:"すぐに助けが必要ですか？",emSpan:"911 に電話 | 988 こころの危機相談",
+    btnCall311BottomText:"311 に電話",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"混乱をわかりやすさに。小さな困りごとが大きくなる前に、確認済みの支援先を見つけるお手伝いをします。",
+    quickLinksTitle:"クイックリンク",getHelpTitle:"支援を受ける",
+    footerHome:"ホーム",footerFind:"リソースを探す",footerBrowse:"すべて見る",footerMore:"CivicConnect AI について",
+    footerCall311Text:"311 に電話",footerContactText:"お問い合わせ",
+    footerNote:"情報は定期的に確認していますが、変更される場合があります。事前に電話でご確認ください。",
+    privacyText:"プライバシーポリシー",termsText:"利用規約",
+    signupEmail:"メール",signupPassword:"パスワード",firstName:"名",lastName:"姓",
+    choosePicLabel:"プロフィール画像を選択",
+    btnNext1:"次へ",btnNext2:"次へ",btnFinish:"完了",
+    greetGuest:"こんにちは！",greetUser:"こんにちは、{name}！",
+
+    moreTitle:"私たちについて",
+    moreQ1:"作成者は誰ですか？",
+    moreA1:"このサイトの作成者である Lucy Johnston、Vardeni Vardanyan、Oscar von Brockdorff をご紹介します。彼らはカリフォルニア州サンフランシスコの Proof School（数学が好きな子ども向けの学校）の7年生です。",
+    moreQ2:"このサイトは何のためですか？",
+    moreA2:"このサイトは、簡単なアンケート回答を AI で分かりやすい個別ガイドに変換し、移民や家族が適切な地域サービスをすばやく見つけられるようにします。",
+    moreQ3:"誰がこのサイトを作りましたか？",
+    moreA3:"私たちは7年生で、教育とテクノロジーに興味があり、行政サービスをもっと分かりやすくしたいと考えています。",
+    moreQ4:"無料ですか？",
+    moreA4:"はい！CivicConnect AI は100%無料です。",
+    moreQ5:"アカウントは必要ですか？",
+    moreA5:"進捗を保存するために、メールでアカウントを作成できます（おすすめです）。",
+    moreQ6:"対応している言語は？",
+    moreA6:"現在10以上の言語に対応しており、今後も追加予定です。",
+    moreQ7:"連絡方法は？",
+    moreA7:"Civicconnectaiwebsite@gmail.com までメールしてください。",
+    moreQ8:"リソースは確認されていますか？",
+    moreA8:"はい。正確性と安全性のため、追加前にすべて確認しています。",
+    moreQ9:"どんなリソースがありますか？",
+    moreA9:"「リソースを探す」から、食料支援、住居支援、医療、法律支援などを探せます。"
+  },
+
+  ko:{
+    brand:"CivicConnect AI",navHome:"홈",navFind:"리소스 찾기",navBrowse:"모두 보기",navMore:"우리에 대해",
+    call311:"311 전화",call911:"911 전화",
+    badge:"● 무료 및 다국어",headline1:"지역 도움 찾기",headline2:"필요할 때",
+    subtext:"식료품, 건강, 주거 등 미국의 신뢰할 수 있는 지원을 — 당신의 언어로 연결해드립니다.",
+    btnLogin:"로그인",btnSignup:"가입",
+    f1:"✔ 검증된 리소스",f2:"🌐 10+ 언어",f3:"💚 100% 무료",
+    howTitle:"이용 방법",howSub:"3단계로 지역 도움을 연결해요",
+    step1Title:"상황을 알려주세요",step1Body:"상황과 필요에 대한 간단한 질문에 답해요.",
+    step2Title:"맞춤 추천",step2Body:"AI가 필요한 지역 리소스를 찾아드려요.",
+    step3Title:"바로 실행",step3Body:"지금 바로 도움받을 수 있도록 단계별로 안내해요.",
+    emStrong:"긴급 도움이 필요하신가요?",emSpan:"911 전화 | 988 위기 상담",
+    btnCall311BottomText:"311 전화",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"혼란을 명확함으로. 작은 문제가 커지기 전에 검증된 지역 지원을 찾도록 도와드려요.",
+    quickLinksTitle:"바로가기",getHelpTitle:"도움 받기",
+    footerHome:"홈",footerFind:"리소스 찾기",footerBrowse:"모두 보기",footerMore:"CivicConnect AI 소개",
+    footerCall311Text:"311 전화",footerContactText:"문의하기",
+    footerNote:"리소스는 정기적으로 확인하지만 변경될 수 있어요. 방문 전 전화로 확인하세요.",
+    privacyText:"개인정보 처리방침",termsText:"이용약관",
+    signupEmail:"이메일",signupPassword:"비밀번호",firstName:"이름",lastName:"성",
+    choosePicLabel:"프로필 사진 선택",
+    btnNext1:"다음",btnNext2:"다음",btnFinish:"완료",
+    greetGuest:"안녕하세요!",greetUser:"안녕하세요, {name}님!",
+
+    moreTitle:"우리에 대해",
+    moreQ1:"제작자는 누구인가요?",
+    moreA1:"이 웹사이트의 제작자인 Lucy Johnston, Vardeni Vardanyan, Oscar von Brockdorff를 소개합니다. 이들은 캘리포니아 샌프란시스코에 있는 Proof School(수학을 좋아하는 아이들을 위한 학교)의 7학년 학생입니다.",
+    moreQ2:"이 웹사이트는 무엇을 하나요?",
+    moreA2:"이 웹사이트는 간단한 설문 응답을 AI로 분석해 이해하기 쉬운 맞춤형 안내로 바꾸어, 이민자와 가족이 올바른 지역 서비스를 빠르게 찾도록 돕습니다.",
+    moreQ3:"누가 이 사이트를 만들었나요?",
+    moreA3:"우리는 교육과 기술에 관심이 많은 7학년 학생들이며, 정부 서비스를 더 쉽게 이해할 수 있도록 만들고 싶었습니다.",
+    moreQ4:"무료인가요?",
+    moreA4:"네! CivicConnect AI는 100% 무료입니다.",
+    moreQ5:"계정이 필요한가요?",
+    moreA5:"진행 상황을 저장하려면 이메일로 계정을 만들 수 있습니다(권장).",
+    moreQ6:"어떤 언어를 지원하나요?",
+    moreA6:"현재 10개 이상의 언어를 지원하며, 앞으로 더 추가할 예정입니다.",
+    moreQ7:"어떻게 연락하나요?",
+    moreA7:"Civicconnectaiwebsite@gmail.com 으로 이메일 주세요.",
+    moreQ8:"리소스는 검증되나요?",
+    moreA8:"네. 정확성과 안전을 위해 모든 리소스를 추가 전에 검증합니다.",
+    moreQ9:"어떤 리소스가 있나요?",
+    moreA9:"“리소스 찾기”에서 식료품 지원, 주거 지원, 의료, 법률 지원 등 다양한 도움을 확인할 수 있습니다."
+  },
+
+  ar:{
+    brand:"CivicConnect AI",navHome:"الرئيسية",navFind:"ابحث عن الموارد",navBrowse:"تصفح الكل",navMore:"المزيد عنا",
+    call311:"اتصل بـ 311",call911:"اتصل بـ 911",
+    badge:"● مجاني ومتعدد اللغات",headline1:"اعثر على المساعدة المحلية",headline2:"عندما تحتاجها",
+    subtext:"تواصل مع موارد موثوقة في الولايات المتحدة للغذاء والصحة والسكن والمزيد — بلغتك.",
+    btnLogin:"تسجيل الدخول",btnSignup:"إنشاء حساب",
+    f1:"✔ موارد موثوقة",f2:"🌐 10+ لغات",f3:"💚 مجاني 100%",
+    howTitle:"كيف يعمل",howSub:"احصل على المساعدة المحلية بثلاث خطوات بسيطة",
+    step1Title:"أخبرنا عن حالتك",step1Body:"أجب عن بعض الأسئلة السريعة حول وضعك واحتياجاتك.",
+    step2Title:"احصل على خيارات مناسبة",step2Body:"يبحث الذكاء الاصطناعي عن أفضل الموارد المحلية لاحتياجاتك.",
+    step3Title:"اتخذ خطوة",step3Body:"اتبع إرشادات واضحة للحصول على المساعدة بسرعة.",
+    emStrong:"هل تحتاج مساعدة فورية؟",emSpan:"اتصل بـ 911 | 988 دعم الأزمات",
+    btnCall311BottomText:"اتصل بـ 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"نحوّل الحيرة إلى وضوح. نساعد العائلات في العثور على موارد محلية موثوقة قبل أن تتفاقم المشكلات الصغيرة.",
+    quickLinksTitle:"روابط سريعة",getHelpTitle:"الحصول على المساعدة",
+    footerHome:"الرئيسية",footerFind:"ابحث عن الموارد",footerBrowse:"تصفح الكل",footerMore:"عن CivicConnect AI",
+    footerCall311Text:"اتصل بـ 311",footerContactText:"تواصل معنا",
+    footerNote:"نراجع الموارد بانتظام لكنها قد تتغير. يرجى الاتصال للتأكد.",
+    privacyText:"سياسة الخصوصية",termsText:"شروط الخدمة",
+    signupEmail:"البريد الإلكتروني",signupPassword:"كلمة المرور",firstName:"الاسم الأول",lastName:"اسم العائلة",
+    choosePicLabel:"اختر صورة للملف الشخصي",
+    btnNext1:"التالي",btnNext2:"التالي",btnFinish:"إنهاء",
+    greetGuest:"مرحباً!",greetUser:"مرحباً، {name}!",
+
+    moreTitle:"المزيد عنا",
+    moreQ1:"من هم المبدعون؟",
+    moreA1:"تعرّف على Lucy Johnston وVardeni Vardanyan وOscar von Brockdorff، وهم صُنّاع هذا الموقع. هم طلاب الصف السابع في Proof School، وهي مدرسة للأطفال الذين يحبون الرياضيات، في سان فرانسيسكو، كاليفورنيا.",
+    moreQ2:"ما هدف هذا الموقع؟",
+    moreA2:"يساعد هذا الموقع المهاجرين والعائلات على العثور بسرعة على الخدمات المحلية المناسبة عبر تحويل إجابات استطلاع بسيطة إلى إرشادات واضحة ومخصّصة باستخدام الذكاء الاصطناعي.",
+    moreQ3:"من الذي بنى هذا الموقع؟",
+    moreA3:"نحن طلاب في الصف السابع شغوفون بالتعليم والتقنية، ونريد جعل الخدمات الحكومية أسهل للفهم.",
+    moreQ4:"هل هو مجاني؟",
+    moreA4:"نعم! CivicConnect AI مجاني 100%.",
+    moreQ5:"هل أحتاج إلى حساب؟",
+    moreA5:"يمكنك إنشاء حساب باستخدام بريدك الإلكتروني لحفظ تقدمك (مستحسن).",
+    moreQ6:"ما اللغات المدعومة؟",
+    moreA6:"نحن ندعم أكثر من 10 لغات حاليًا ونضيف المزيد مع الوقت.",
+    moreQ7:"كيف يمكنني التواصل معكم؟",
+    moreA7:"يمكنك مراسلتنا على Civicconnectaiwebsite@gmail.com",
+    moreQ8:"هل الموارد مُتحقَّق منها؟",
+    moreA8:"نعم. نتحقق من جميع الموارد قبل إضافتها لضمان الدقة والسلامة.",
+    moreQ9:"ما الموارد المتاحة؟",
+    moreA9:"يمكنك استكشاف المساعدات الغذائية، ودعم السكن، والرعاية الصحية، والمساعدة القانونية، والمزيد ضمن قسم «ابحث عن الموارد»."
+  },
+
+  ru:{
+    brand:"CivicConnect AI",navHome:"Главная",navFind:"Найти ресурсы",navBrowse:"Просмотреть всё",navMore:"Подробнее о нас",
+    call311:"Позвонить 311",call911:"Позвонить 911",
+    badge:"● Бесплатно и многоязычно",headline1:"Найдите Местную Помощь",headline2:"Когда Она Нужна",
+    subtext:"Подключайтесь к надежным ресурсам в США по питанию, здоровью, жилью и другим услугам — на вашем языке.",
+    btnLogin:"Войти",btnSignup:"Регистрация",
+    f1:"✔ Проверенные ресурсы",f2:"🌐 10+ языков",f3:"💚 100% бесплатно",
+    howTitle:"Как это работает",howSub:"Получите местную помощь в три простых шага",
+    step1Title:"Расскажите о себе",step1Body:"Ответьте на несколько коротких вопросов о вашей ситуации и нуждах.",
+    step2Title:"Получите подборку",step2Body:"Наш ИИ подберёт лучшие местные ресурсы под ваши потребности.",
+    step3Title:"Сделайте шаг",step3Body:"Получите понятные шаги, чтобы быстро получить помощь.",
+    emStrong:"Нужна срочная помощь?",emSpan:"Звоните 911 | 988 кризисная поддержка",
+    btnCall311BottomText:"Позвонить 311",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"Превращаем путаницу в ясность. Помогаем семьям находить проверенные местные ресурсы до того, как небольшие проблемы станут серьёзными.",
+    quickLinksTitle:"Быстрые ссылки",getHelpTitle:"Получить помощь",
+    footerHome:"Главная",footerFind:"Найти ресурсы",footerBrowse:"Просмотреть всё",footerMore:"О CivicConnect AI",
+    footerCall311Text:"Позвонить 311",footerContactText:"Связаться с нами",
+    footerNote:"Ресурсы регулярно проверяются, но могут меняться. Позвоните заранее, чтобы уточнить.",
+    privacyText:"Политика конфиденциальности",termsText:"Условия использования",
+    signupEmail:"Email",signupPassword:"Пароль",firstName:"Имя",lastName:"Фамилия",
+    choosePicLabel:"Выберите фото профиля",
+    btnNext1:"Далее",btnNext2:"Далее",btnFinish:"Готово",
+    greetGuest:"Привет!",greetUser:"Привет, {name}!",
+
+    moreTitle:"Подробнее о нас",
+    moreQ1:"Кто создатели?",
+    moreA1:"Познакомьтесь с Lucy Johnston, Vardeni Vardanyan и Oscar von Brockdorff — создателями этого сайта. Они учатся в 7 классе в Proof School (школа для детей, которые любят математику) в Сан-Франциско, Калифорния.",
+    moreQ2:"Для чего этот сайт?",
+    moreA2:"Этот сайт помогает иммигрантам и семьям быстро находить подходящие местные сервисы, превращая простые ответы анкеты в понятные и персональные шаги с помощью ИИ.",
+    moreQ3:"Кто сделал этот сайт?",
+    moreA3:"Мы — семиклассники, которым интересны образование и технологии, и мы хотим, чтобы государственные сервисы было легче понимать.",
+    moreQ4:"Это бесплатно?",
+    moreA4:"Да! CivicConnect AI на 100% бесплатен.",
+    moreQ5:"Нужен ли аккаунт?",
+    moreA5:"Да, вы можете создать аккаунт по email, чтобы сохранять прогресс.",
+    moreQ6:"Какие языки поддерживаются?",
+    moreA6:"Сейчас мы поддерживаем более 10 языков и будем добавлять новые со временем.",
+    moreQ7:"Как с вами связаться?",
+    moreA7:"Напишите нам на Civicconnectaiwebsite@gmail.com",
+    moreQ8:"Ресурсы проверены?",
+    moreA8:"Да. Мы проверяем все ресурсы перед добавлением, чтобы обеспечить точность и безопасность.",
+    moreQ9:"Какие ресурсы доступны?",
+    moreA9:"В разделе «Найти ресурсы» вы можете найти продовольственную помощь, помощь с жильём, медицину, юридическую помощь и многое другое."
+  },
+
+  hi:{
+    brand:"CivicConnect AI",navHome:"होम",navFind:"संसाधन खोजें",navBrowse:"सभी देखें",navMore:"हमारे बारे में",
+    call311:"311 पर कॉल करें",call911:"911 पर कॉल करें",
+    badge:"● मुफ्त और बहुभाषी",headline1:"स्थानीय सहायता खोजें",headline2:"जब आपको आवश्यकता हो",
+    subtext:"भोजन, स्वास्थ्य, आवास और अन्य के लिए अमेरिका के विश्वसनीय संसाधनों से जुड़ें — अपनी भाषा में।",
+    btnLogin:"लॉग इन",btnSignup:"साइन अप",
+    f1:"✔ सत्यापित संसाधन",f2:"🌐 10+ भाषाएँ",f3:"💚 100% मुफ्त",
+    howTitle:"यह कैसे काम करता है",howSub:"3 आसान कदमों में स्थानीय मदद से जुड़ें",
+    step1Title:"अपनी जानकारी दें",step1Body:"अपनी स्थिति और ज़रूरतों पर कुछ छोटे सवालों के जवाब दें।",
+    step2Title:"मिलान पाएँ",step2Body:"हमारा AI आपकी ज़रूरत के अनुसार सबसे अच्छे स्थानीय संसाधन ढूँढता है।",
+    step3Title:"आगे बढ़ें",step3Body:"तुरंत मदद पाने के लिए स्पष्ट चरण-दर-चरण मार्गदर्शन पाएं।",
+    emStrong:"क्या तुरंत मदद चाहिए?",emSpan:"911 पर कॉल करें | 988 संकट सहायता",
+    btnCall311BottomText:"311 पर कॉल करें",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"उलझन को स्पष्टता में बदलते हैं। छोटे मुद्दे बड़े बनने से पहले हम परिवारों को सत्यापित स्थानीय संसाधन ढूँढने में मदद करते हैं।",
+    quickLinksTitle:"त्वरित लिंक",getHelpTitle:"मदद लें",
+    footerHome:"होम",footerFind:"संसाधन खोजें",footerBrowse:"सभी देखें",footerMore:"CivicConnect AI के बारे में",
+    footerCall311Text:"311 पर कॉल करें",footerContactText:"संपर्क करें",
+    footerNote:"संसाधन नियमित रूप से सत्यापित किए जाते हैं, लेकिन बदल सकते हैं। कृपया पहले कॉल करके पुष्टि करें।",
+    privacyText:"गोपनीयता नीति",termsText:"सेवा की शर्तें",
+    signupEmail:"ईमेल",signupPassword:"पासवर्ड",firstName:"पहला नाम",lastName:"अंतिम नाम",
+    choosePicLabel:"प्रोफ़ाइल फोटो चुनें",
+    btnNext1:"अगला",btnNext2:"अगला",btnFinish:"समाप्त",
+    greetGuest:"नमस्ते!",greetUser:"नमस्ते, {name}!",
+
+    moreTitle:"हमारे बारे में",
+    moreQ1:"निर्माता कौन हैं?",
+    moreA1:"Lucy Johnston, Vardeni Vardanyan, और Oscar von Brockdorff से मिलिए — ये इस वेबसाइट के निर्माता हैं। वे सैन फ्रांसिस्को, कैलिफ़ोर्निया के Proof School में 7वीं कक्षा के छात्र हैं, जो गणित पसंद करने वाले बच्चों के लिए एक स्कूल है।",
+    moreQ2:"यह वेबसाइट किस लिए है?",
+    moreA2:"यह वेबसाइट प्रवासियों और परिवारों को सही स्थानीय सेवाएँ जल्दी ढूँढने में मदद करती है, सरल सर्वे उत्तरों को AI के जरिए स्पष्ट और व्यक्तिगत मार्गदर्शन में बदलकर।",
+    moreQ3:"यह साइट किसने बनाई?",
+    moreA3:"हम 7वीं कक्षा के छात्र हैं, शिक्षा और तकनीक के प्रति उत्साही हैं, और सरकारी सेवाओं को समझना आसान बनाना चाहते हैं।",
+    moreQ4:"क्या यह मुफ्त है?",
+    moreA4:"हाँ! CivicConnect AI 100% मुफ्त है।",
+    moreQ5:"क्या मुझे अकाउंट चाहिए?",
+    moreA5:"हाँ, आप अपनी प्रगति सेव करने के लिए ईमेल से अकाउंट बना सकते हैं।",
+    moreQ6:"कौन-कौन सी भाषाएँ समर्थित हैं?",
+    moreA6:"अभी हम 10+ भाषाएँ सपोर्ट करते हैं और समय के साथ और जोड़ रहे हैं।",
+    moreQ7:"मैं आपसे कैसे संपर्क करूँ?",
+    moreA7:"आप हमें Civicconnectaiwebsite@gmail.com पर ईमेल कर सकते हैं।",
+    moreQ8:"क्या संसाधन सत्यापित हैं?",
+    moreA8:"हाँ। हम सभी संसाधनों को जोड़ने से पहले सत्यापित करते हैं ताकि सही और सुरक्षित जानकारी मिले।",
+    moreQ9:"कौन से संसाधन उपलब्ध हैं?",
+    moreA9:"आप “संसाधन खोजें” में भोजन सहायता, आवास सहायता, स्वास्थ्य सेवाएँ, कानूनी मदद और बहुत कुछ देख सकते हैं।"
+  },
+
+  bn:{
+    brand:"CivicConnect AI",navHome:"হোম",navFind:"রিসোর্স খুঁজুন",navBrowse:"সব দেখুন",navMore:"আমাদের সম্পর্কে",
+    call311:"311 কল করুন",call911:"911 কল করুন",
+    badge:"● বিনামূল্যে ও বহু ভাষায়",headline1:"স্থানীয় সহায়তা খুঁজুন",headline2:"যখন আপনার প্রয়োজন",
+    subtext:"খাবার, স্বাস্থ্য, বাসস্থানসহ যুক্তরাষ্ট্রের বিশ্বস্ত রিসোর্সের সাথে যুক্ত হন — আপনার ভাষায়।",
+    btnLogin:"লগ ইন",btnSignup:"সাইন আপ",
+    f1:"✔ যাচাইকৃত রিসোর্স",f2:"🌐 10+ ভাষা",f3:"💚 100% বিনামূল্যে",
+    howTitle:"কীভাবে কাজ করে",howSub:"৩টি সহজ ধাপে স্থানীয় সহায়তা পান",
+    step1Title:"আপনার সম্পর্কে জানান",step1Body:"আপনার পরিস্থিতি ও প্রয়োজন সম্পর্কে কয়েকটি দ্রুত প্রশ্নের উত্তর দিন।",
+    step2Title:"মিলিয়ে নিন",step2Body:"আমাদের AI আপনার জন্য উপযুক্ত স্থানীয় রিসোর্স খুঁজে দেয়।",
+    step3Title:"এখনই পদক্ষেপ নিন",step3Body:"দ্রুত সাহায্য পেতে ধাপে ধাপে নির্দেশনা পান।",
+    emStrong:"তাত্ক্ষণিক সাহায্য দরকার?",emSpan:"911 কল করুন | 988 ক্রাইসিস সহায়তা",
+    btnCall311BottomText:"311 কল করুন",
+    footerBrandName:"CivicConnect AI",
+    footerTagline:"বিভ্রান্তিকে পরিষ্কার করে। ছোট সমস্যা বড় হওয়ার আগে যাচাইকৃত স্থানীয় সহায়তা খুঁজতে আমরা পরিবারকে সাহায্য করি।",
+    quickLinksTitle:"দ্রুত লিংক",getHelpTitle:"সহায়তা নিন",
+    footerHome:"হোম",footerFind:"রিসোর্স খুঁজুন",footerBrowse:"সব দেখুন",footerMore:"CivicConnect AI সম্পর্কে",
+    footerCall311Text:"311 কল করুন",footerContactText:"যোগাযোগ করুন",
+    footerNote:"রিসোর্স নিয়মিত যাচাই করা হয়, কিন্তু পরিবর্তন হতে পারে। আগে কল করে নিশ্চিত করুন।",
+    privacyText:"গোপনীয়তা নীতি",termsText:"সেবার শর্তাবলি",
+    signupEmail:"ইমেইল",signupPassword:"পাসওয়ার্ড",firstName:"নাম",lastName:"পদবি",
+    choosePicLabel:"প্রোফাইল ছবি নির্বাচন করুন",
+    btnNext1:"পরবর্তী",btnNext2:"পরবর্তী",btnFinish:"শেষ",
+    greetGuest:"হ্যালো!",greetUser:"হ্যালো, {name}!",
+
+    moreTitle:"আমাদের সম্পর্কে",
+    moreQ1:"সৃষ্টিকারীরা কারা?",
+    moreA1:"Lucy Johnston, Vardeni Vardanyan এবং Oscar von Brockdorff-এর সাথে পরিচিত হন—এই ওয়েবসাইটের সৃষ্টিকারী। তারা ক্যালিফোর্নিয়ার সান ফ্রান্সিসকোর Proof School-এ সপ্তম শ্রেণির শিক্ষার্থী; এটি গণিত ভালোবাসা শিশুদের জন্য একটি স্কুল।",
+    moreQ2:"এই ওয়েবসাইটের উদ্দেশ্য কী?",
+    moreA2:"এই ওয়েবসাইটটি অভিবাসী ও পরিবারদের সঠিক স্থানীয় সেবা দ্রুত খুঁজে পেতে সাহায্য করে—সহজ সার্ভে উত্তরকে AI দিয়ে পরিষ্কার ও ব্যক্তিগত নির্দেশনায় রূপান্তর করে।",
+    moreQ3:"কে এই সাইটটি বানিয়েছে?",
+    moreA3:"আমরা সপ্তম শ্রেণির শিক্ষার্থী—শিক্ষা ও প্রযুক্তি নিয়ে আগ্রহী, এবং সরকারি সেবা আরও সহজে বোঝার মতো করতে চাই।",
+    moreQ4:"এটা কি ফ্রি?",
+    moreA4:"হ্যাঁ! CivicConnect AI ১০০% ফ্রি।",
+    moreQ5:"আমার কি অ্যাকাউন্ট লাগবে?",
+    moreA5:"হ্যাঁ, আপনি ইমেইল দিয়ে অ্যাকাউন্ট তৈরি করে আপনার অগ্রগতি সংরক্ষণ করতে পারেন।",
+    moreQ6:"কোন কোন ভাষা সমর্থিত?",
+    moreA6:"বর্তমানে আমরা ১০+ ভাষা সমর্থন করি এবং সময়ের সাথে আরও যোগ করছি।",
+    moreQ7:"আমি কীভাবে যোগাযোগ করব?",
+    moreA7:"আপনি Civicconnectaiwebsite@gmail.com-এ আমাদের ইমেইল করতে পারেন।",
+    moreQ8:"রিসোর্সগুলো কি যাচাই করা?",
+    moreA8:"হ্যাঁ। নির্ভুলতা ও নিরাপত্তার জন্য আমরা সব রিসোর্স যোগ করার আগে যাচাই করি।",
+    moreQ9:"কোন ধরনের রিসোর্স পাওয়া যায়?",
+    moreA9:"“রিসোর্স খুঁজুন” অংশে খাবার সহায়তা, বাসস্থান সহায়তা, স্বাস্থ্যসেবা, আইনি সহায়তা এবং আরও অনেক কিছু পাওয়া যায়।"
+  }
+};
+ 
+const ids = Object.keys(translations.en);
+
+function applyLanguage(lang){
+  const t = translations[lang] || translations.en;
+  document.documentElement.lang = lang;
+
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const val = t[id];
+    if(val == null) return;
+    if(el.tagName==="INPUT" || el.tagName==="TEXTAREA"){ if("placeholder" in el) el.placeholder = val; return; }
+    el.textContent = val;
+  });
+
+  document.querySelectorAll("#footerLangPills .pill").forEach(p=>p.classList.remove("active"));
+  const match = document.querySelector(`#footerLangPills .pill[data-lang="${lang}"]`);
+  if(match) match.classList.add("active");
+
+  updateProfileDisplay();
+}
+
+function openAccountModal() {
+  const modal = document.getElementById("modalOverlay");
+  const modalContent = document.getElementById("modalContent");
+  const modalTitle = document.getElementById("modalTitle");
+
+  modalContent.querySelectorAll(".accountView").forEach(e => e.remove());
+  document.getElementById("signupStep1").style.display = "none";
+  document.getElementById("signupStep2").style.display = "none";
+  document.getElementById("signupStep3").style.display = "none";
+
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const user = users[currentUserEmail];
+
+  modalTitle.textContent = "Account";
+
+  // hide signup steps
+  document.getElementById("signupStep1").style.display = "none";
+  document.getElementById("signupStep2").style.display = "none";
+  document.getElementById("signupStep3").style.display = "none";
+
+  // remove old account view if it exists
+  modalContent.querySelectorAll(".accountView").forEach(e => e.remove());
+
+  const account = document.createElement("div");
+  account.className = "accountView";
+  account.style.display = "flex";
+  account.style.flexDirection = "column";
+  account.style.gap = "1rem";
+  account.style.marginTop = "1rem";
+
+  account.innerHTML = `
+    <img src="${user.avatar}" style="width:80px;height:80px;border-radius:50%;margin:0 auto;">
+    <strong>${user.firstName} ${user.lastName}</strong>
+    <button class="secondary" id="logoutBtn">Log out</button>
+  `;
+
+  modalContent.appendChild(account);
+  modal.style.display = "flex";
+
+  document.getElementById("logoutBtn").onclick = () => {
+  // clear login state
+  localStorage.removeItem("loggedInUser");
+  currentUserEmail = null;
+
+  // reset top-right profile UI
+  document.getElementById("profileGreeting").textContent = "Hello, user!";
+  document.getElementById("profileAvatar").style.display = "none";
+  document.getElementById("profileAvatar").src = "";
+
+  // remove account view so it doesn't persist
+  document.querySelectorAll(".accountView").forEach(e => e.remove());
+
+  // close modal
+  document.getElementById("modalOverlay").style.display = "none";
+};
+
+}
+
+
+/* Language select: save + apply */
+const languageSelect = document.getElementById("languageSelect");
+languageSelect.addEventListener("change", e=>{
+  const lang = e.target.value;
+  setSavedLang(lang);
+  applyLanguage(lang);
+
+  // if user is on More About Us, re-render it in the new language
+  if (document.getElementById("navMore").classList.contains("active")) showMore();
+});
+
+/* ===== Home render ===== */
+function renderHome(){
+  mainContent.innerHTML = "";
+  const main = document.getElementById("mainContent");
+  const footerMount = document.getElementById("homeFooterMount");
+
+  main.innerHTML = `
+    <section class="hero-content">
+      <span class="badge" id="badge">● Free & Multilingual</span>
+      <h1><span id="headline1">Find Local Help</span><br/><span class="highlight" id="headline2">When You Need It Most</span></h1>
+      <p id="subtext">Get connected to trusted U.S. resources for food, health, housing, and more — in your language.</p>
+      <div class="cta">
+        <button class="primary" id="btnLogin">Log In</button>
+        <button class="secondary" id="btnSignup">Sign Up</button>
+      </div>
+      <div class="features">
+        <span id="f1">✔ Verified Resources</span>
+        <span id="f2">🌐 10+ Languages</span>
+        <span id="f3">💚 100% Free</span>
+      </div>
+    </section>
+
+    <section class="home-panel" id="howItWorks">
+      <h2 class="home-title" id="howTitle">How It Works</h2>
+      <p class="home-sub" id="howSub">Get connected to local help in three simple steps</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+            </svg>
+          </div>
+          <h3 id="step1Title">Tell Us About You</h3>
+          <p id="step1Body">Answer a few quick questions about your situation and needs.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+          </div>
+          <h3 id="step2Title">Get Matched</h3>
+          <p id="step2Body">Our AI finds the best local resources for your specific needs.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 21s7-4.35 7-11a7 7 0 0 0-14 0c0 6.65 7 11 7 11z"></path>
+              <circle cx="12" cy="10" r="2.5"></circle>
+            </svg>
+          </div>
+          <h3 id="step3Title">Take Action</h3>
+          <p id="step3Body">Get step-by-step guidance to access help right away.</p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  footerMount.innerHTML = `
+    <section class="footer-wrap" id="homeFooter">
+      <div class="emergency-bar">
+        <div class="emergency-inner">
+          <div class="em-left">
+            <div class="em-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.3 3.2L1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/>
+                <path d="M12 9v4"/><path d="M12 17h.01"/>
+              </svg>
+            </div>
+            <div class="em-text">
+              <strong id="emStrong">Need immediate help?</strong>
+              <span id="emSpan">Call 911 | 988 Suicide &amp; Crisis</span>
+            </div>
+          </div>
+          <button class="em-btn" id="btnCall311Bottom"><span id="btnCall311BottomText">Call 311</span></button>
+        </div>
+      </div>
+
+      <footer class="site-footer">
+        <div class="footer-card">
+          <div class="footer-grid">
+            <div class="footer-col">
+              <div class="footer-brand">
+                <div class="cc">CC</div>
+                <div>
+                  <h4 id="footerBrandName">CivicConnect AI</h4>
+                  <p id="footerTagline">Turning confusion into clarity. We help families find verified local resources before small problems become costly crises.</p>
+                  <div class="lang-pills" id="footerLangPills">
+                    <span class="pill active" data-lang="en">English</span>
+                    <span class="pill" data-lang="es">Español</span>
+                    <span class="pill" data-lang="zh">中文</span>
+                    <span class="pill" data-lang="ru">Русский</span>
+                    <span class="pill" data-lang="ar">العربية</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-col">
+              <h5 id="quickLinksTitle">Quick Links</h5>
+              <div class="footer-links">
+                <a id="footerHome">Home</a>
+                <a id="footerFind">Find Resources</a>
+                <a id="footerBrowse">Browse All</a>
+                <a id="footerMore">About CivicConnect AI</a>
+              </div>
+            </div>
+
+            <div class="footer-col">
+              <h5 id="getHelpTitle">Get Help</h5>
+              <div class="footer-links">
+                <a class="help-item" id="footerCall311">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  <span id="footerCall311Text">Call 311</span>
+                </a>
+
+                <a class="help-item" id="footerContact">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/>
+                  </svg>
+                  <span id="footerContactText">Contact Us</span>
+                </a>
+
+                <a class="help-item" href="https://sf.gov" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/>
+                  </svg>
+                  SF.gov
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <div id="footerNote">Resources are verified regularly but may change. Always call ahead to confirm.</div>
+            <div style="display:flex;gap:1rem;align-items:center;">
+              <a id="privacyLink"><span id="privacyText">Privacy Policy</span></a>
+              <a id="termsLink"><span id="termsText">Terms of Service</span></a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </section>
+  `;
+
+  wireHomeButtons();
+}
+
+/* ================= NAV + LINKS (PASS LANG) ================= */
+function navTo(url){
+  const lang = languageSelect.value;
+  setSavedLang(lang);
+  const u = new URL(url, window.location.origin);
+  u.searchParams.set("lang", lang);
+  window.location.href = u.toString();
+}
+
+/* Nav actions */
+document.getElementById("navFind").addEventListener("click", ()=> navTo("/survey.html"));
+document.getElementById("navBrowse").addEventListener("click", ()=> navTo("/access_to_local_help.html"));
+document.getElementById("navMore").addEventListener("click", showMore);
+document.getElementById("navHome").addEventListener("click", ()=>{
+  mainContent.innerHTML = "";
+  renderHome();
+  document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+  document.getElementById("navHome").classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+
+/* Calls */
+document.getElementById("btnCall311Top").addEventListener("click", ()=> window.location.href="tel:311");
+document.getElementById("btnCall911Top").addEventListener("click", ()=> window.location.href="tel:911");
+
+/* ================= MODAL / SIGNUP (your same logic) ================= */
+function showInfo(text) {
+  const modal = document.getElementById("modalOverlay");
+  const title = document.getElementById("modalTitle");
+  const body = document.getElementById("modalBody");
+
+  // hard reset
+  document.querySelectorAll(".accountView").forEach(e => e.remove());
+  document.getElementById("signupStep1").style.display = "none";
+  document.getElementById("signupStep2").style.display = "none";
+  document.getElementById("signupStep3").style.display = "none";
+
+  title.textContent = "Information";
+  body.innerHTML = `<p style="font-size:1.05rem;">${text}</p>`;
+
+  modal.style.display = "flex";
+}
+
+
+function showMore(){
+  const lang = languageSelect.value;
+  const t = translations[lang] || translations.en;
+
+  const main = document.getElementById("mainContent");
+  const footerMount = document.getElementById("homeFooterMount");
+
+  main.innerHTML = `
+    <section class="page-content">
+      <h2 style="margin-top:0;color:var(--dark-green);">${t.moreTitle}</h2>
+
+      ${moreBtn(t.moreQ1, t.moreA1)}
+      ${moreBtn(t.moreQ2, t.moreA2)}
+      ${moreBtn(t.moreQ3, t.moreA3)}
+      ${moreBtn(t.moreQ4, t.moreA4)}
+      ${moreBtn(t.moreQ5, t.moreA5)}
+      ${moreBtn(t.moreQ6, t.moreA6)}
+      ${moreBtn(t.moreQ7, t.moreA7)}
+      ${moreBtn(t.moreQ8, t.moreA8)}
+      ${moreBtn(t.moreQ9, t.moreA9)}
+    </section>
+  `;
+
+  footerMount.innerHTML = "";
+
+  // wire buttons
+  main.querySelectorAll(".more-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      showInfo(btn.dataset.text);
+    });
+  });
+
+  document.querySelectorAll("nav a").forEach(a => a.classList.remove("active"));
+  document.getElementById("navMore").classList.add("active");
+}
+
+function moreBtn(label, text){
+  return `<button class="more-btn" data-text="${text}">${label}</button>`;
+}
+
+
+
+
+function wireHomeButtons(){
+  const modal = document.getElementById("modalOverlay");
+  const closeBtn = document.querySelector(".closeModal");
+  const step1 = document.getElementById("signupStep1");
+  const step2 = document.getElementById("signupStep2");
+  const step3 = document.getElementById("signupStep3");
+  const passwordInput = document.getElementById("signupPassword");
+  const togglePassword = document.getElementById("togglePassword");
+  const btnSignup = document.getElementById("btnSignup");
+  const btnLogin = document.getElementById("btnLogin");
+
+  if (btnSignup) btnSignup.onclick = () => {
+  resetSignup();
+  const modal = document.getElementById("modalOverlay");
+  const modalContent = document.getElementById("modalContent");
+
+  // 🔥 HARD RESET MODAL
+  document.getElementById("modalTitle").textContent = "Sign up";
+
+  // show signup step 1 only
+  signupStep1.style.display = "flex";
+  signupStep2.style.display = "none";
+  signupStep3.style.display = "none";
+
+  modal.style.display = "flex";
+  applyLanguage(languageSelect.value);
+
+  document.getElementById("modalBody").innerHTML = ""; // 🔥 ADD THIS
+
+  resetSignup();
+  document.getElementById("modalTitle").textContent = "Sign Up";
+  modal.style.display = "flex";
+  applyLanguage(languageSelect.value);
+};
+
+  if (btnLogin) btnLogin.onclick = () => {
+  resetSignup();
+  const modal = document.getElementById("modalOverlay");
+  const modalContent = document.getElementById("modalContent");
+
+  // 🔥 HARD RESET MODAL
+  document.getElementById("modalTitle").textContent = "Log In";
+
+  // then build / show login form here
+
+  modal.style.display = "flex";
+  document.getElementById("modalBody").innerHTML = "";
+
+  // remove account view if it exists
+  document.querySelectorAll(".accountView").forEach(e => e.remove());
+
+  resetSignup();
+
+  document.getElementById("modalTitle").textContent = "Log In";
+  step1.style.display = "flex";
+  step2.style.display = "none";
+  step3.style.display = "none";
+
+  modal.style.display = "flex";
+  applyLanguage(languageSelect.value);
+};
+
+
+  closeBtn.onclick=()=>{ modal.style.display="none"; resetSignup(); };
+
+  document.addEventListener("click", e => {
+  if (e.target.classList.contains("closeModal")) {
+    const modal = document.getElementById("modalOverlay");
+    const modalContent = document.getElementById("modalContent");
+
+    modal.style.display = "none";
+    resetSignup(); // 🔒 kill everything
+  }
+});
+
+
+  togglePassword.onclick=()=>{ passwordInput.type = (passwordInput.type==="password" ? "text" : "password"); };
+
+  step1.onsubmit=e=>{
+    e.preventDefault();
+    if(document.getElementById("modalTitle").textContent==="Log In"){
+      const email=document.getElementById("signupEmail").value;
+      const password=document.getElementById("signupPassword").value;
+      const users=JSON.parse(localStorage.getItem("users")||"{}");
+      if(!users[email]) return alert("No account with that email.");
+      if(users[email].password!==password) return alert("Incorrect password.");
+      localStorage.setItem("loggedInUser", email);
+      currentUserEmail = email;
+      updateProfileDisplay();
+      modal.style.display="none";
+      return;
+    }
+    step1.style.display="none"; step2.style.display="flex";
+  };
+
+  step2.onsubmit=e=>{ e.preventDefault(); step2.style.display="none"; step3.style.display="flex"; };
+
+  step3.onsubmit=e=>{
+    e.preventDefault();
+    if(!selectedAvatar) return alert("Please select a profile picture!");
+    const userEmail=document.getElementById("signupEmail").value;
+    const firstName=document.getElementById("firstName").value;
+    const lastName=document.getElementById("lastName").value;
+    const users=JSON.parse(localStorage.getItem("users")||"{}");
+    users[userEmail]={password:document.getElementById("signupPassword").value,firstName,lastName,avatar:selectedAvatar};
+    localStorage.setItem("users", JSON.stringify(users));
+
+    emailjs.send("service_nwczl1m","template_m9g8t2q",
+      { to_email:userEmail, first_name:firstName, last_name:lastName, avatar:selectedAvatar },
+      "w-eEdU9v8ymWSI6uD"
+    ).then(()=>{
+      alert("Signup complete! Please log in.");
+      modal.style.display="none";
+      resetSignup();
+      selectedAvatar=null;
+      updateProfileDisplay();
+    },(error)=>{
+      console.error("EmailJS error:", error);
+      alert("Signup worked, but email failed ❌");
+    });
+  };
+
+  function resetSignup(){
+    step1.reset();step2.reset();step3.reset();
+    step1.style.display="flex";step2.style.display="none";step3.style.display="none";
+    passwordInput.type="password";
+  }
+
+  const btn311Bottom=document.getElementById("btnCall311Bottom");
+  if(btn311Bottom) btn311Bottom.addEventListener("click", ()=>window.location.href="tel:311");
+
+  const footerHome=document.getElementById("footerHome");
+  if(footerHome) footerHome.addEventListener("click", ()=>window.scrollTo({top:0,behavior:"smooth"}));
+  const footerFind=document.getElementById("footerFind");
+  if(footerFind) footerFind.addEventListener("click", ()=>document.getElementById("navFind").click());
+  const footerBrowse=document.getElementById("footerBrowse");
+  if(footerBrowse) footerBrowse.addEventListener("click", ()=>document.getElementById("navBrowse").click());
+  const footerMore=document.getElementById("footerMore");
+  if(footerMore) footerMore.addEventListener("click", ()=>document.getElementById("navMore").click());
+
+  const footerCall311=document.getElementById("footerCall311");
+  if(footerCall311) footerCall311.addEventListener("click", ()=>window.location.href="tel:311");
+
+  const footerContact = document.getElementById("footerContact");
+if (footerContact) {
+  footerContact.addEventListener("click", () => {
+    showInfo("Email us at: Civicconnectaiwebsite@gmail.com");
+  });
+}
+
+  const privacyLink=document.getElementById("privacyLink");
+  if(privacyLink) privacyLink.addEventListener("click", ()=>showPopup("Privacy Policy (placeholder)"));
+
+  const termsLink=document.getElementById("termsLink");
+  if(termsLink) termsLink.addEventListener("click", ()=>showPopup("Terms of Service (placeholder)"));
+
+  document.querySelectorAll("#footerLangPills .pill").forEach(pill=>{
+    pill.addEventListener("click", ()=>{
+      const lang=pill.dataset.lang;
+      languageSelect.value=lang;
+      languageSelect.dispatchEvent(new Event("change"));
+    });
+  });
+}
+
+/* Avatars */
+let selectedAvatar=null;
+const profileChoices=document.getElementById("profileChoices");
+for(let i=1;i<=10;i++){
+  const img=document.createElement("img");
+  img.src=`https://i.pravatar.cc/100?img=${i+10}`;
+  img.className="avatarOption";
+  img.style.width="60px";img.style.height="60px";img.style.borderRadius="50%";img.style.cursor="pointer";img.style.border="2px solid transparent";
+  img.addEventListener("click", ()=>{
+    document.querySelectorAll(".avatarOption").forEach(i=>i.style.border="2px solid transparent");
+    img.style.border="2px solid var(--dark-green)";
+    selectedAvatar=img.src;
+  });
+  profileChoices.appendChild(img);
+}
+
+/* Greeting translated */
+function updateProfileDisplay(){
+  const greeting=document.getElementById("profileGreeting");
+  const avatarImg=document.getElementById("profileAvatar");
+  const lang=languageSelect.value;
+  const t=translations[lang]||translations.en;
+
+  if(!currentUserEmail){
+    greeting.textContent=t.greetGuest || "Hello, user!";
+    avatarImg.src=""; avatarImg.style.display="none";
+    return;
+  }
+  const users=JSON.parse(localStorage.getItem("users")||"{}");
+  const user=users[currentUserEmail];
+  if(user){
+    const template=t.greetUser || "Hello, {name}!";
+    greeting.textContent=template.replace("{name}", user.firstName);
+    avatarImg.src=user.avatar; avatarImg.style.display="block";
+  }
+}
+
+/* START */
+document.addEventListener("DOMContentLoaded", ()=>{
+  renderHome();
+
+  // pick lang: URL > localStorage > en
+  const urlLang = getLangFromUrl();
+  const savedLang = getSavedLang();
+  const initialLang = (urlLang || savedLang || "en");
+  languageSelect.value = initialLang;
+  setSavedLang(initialLang);
+  applyLanguage(initialLang);
+});
+
+const profileBox = document.getElementById("profileBox");
+
+profileBox.addEventListener("click", () => {
+  if (!currentUserEmail) {
+    // if not logged in, open login modal instead
+    document.getElementById("modalTitle").textContent = "Log In";
+    document.getElementById("modalOverlay").style.display = "flex";
+    return;
+  }
+
+  openAccountModal();
+});
+
+
+
+document.querySelector(".closeModal").addEventListener("click", () => {
+  const modal = document.getElementById("modalOverlay");
+  const modalContent = document.getElementById("modalContent");
+
+  modal.style.display = "none";
+
+  // 🔥 FULL RESET
+  modalContent.querySelectorAll(".accountView").forEach(e => e.remove());
+  document.getElementById("signupStep1").style.display = "none";
+  document.getElementById("signupStep2").style.display = "none";
+  document.getElementById("signupStep3").style.display = "none";
+});
+
+</script>
+</body>
+</html>

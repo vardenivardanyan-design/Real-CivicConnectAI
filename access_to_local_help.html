@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Browse Local Help</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<style>
+:root{--text:#0f2f26;--muted:#4b6f63;--dark-green:#006A4E;--light-green:#ACE1AF;--white:rgba(255,255,255,0.6);--panel:rgba(255,255,255,0.9);--border:rgba(0,0,0,0.08);--shadow:0 2px 10px rgba(0,0,0,0.06);--link:#1a73e8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Alegreya',serif;background:#D5EEFD;color:var(--text);padding:3rem 1.5rem;text-align:center}
+.card{max-width:1000px;margin:0 auto;padding:2.5rem;border-radius:18px;background:var(--white);backdrop-filter:blur(8px)}
+h1{font-size:clamp(2.2rem,4vw,3rem);color:var(--dark-green)}
+.badge{padding:.35rem .75rem;border-radius:999px;background:var(--light-green);color:var(--dark-green);font-size:.85rem;display:inline-flex;align-items:center;gap:.4rem;font-weight:700}
+input{padding:.75rem 1rem;width:100%;max-width:360px;border-radius:14px;border:1px solid rgba(0,0,0,0.1);font-size:1rem;font-family:inherit}
+button{padding:.75rem 1.25rem;border-radius:14px;font-size:1rem;border:none;cursor:pointer;font-family:inherit}
+.primary{background:var(--dark-green);color:#fff}
+.secondary{background:#fff;color:var(--dark-green);border:1px solid rgba(0,0,0,0.1)}
+.hidden{display:none}
+.city-grid{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;text-align:left}
+#places{max-height:70vh;overflow-y:auto;padding-right:.5rem}
+.category{margin-bottom:2rem;text-align:left}
+.category h2{color:var(--dark-green);margin-bottom:.75rem}
+
+.place{background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);padding:1rem 1rem .9rem;border-radius:14px;margin-bottom:.75rem}
+.place-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.place strong{font-size:1.1rem;color:#222}
+.place-pill{padding:.28rem .65rem;border-radius:999px;background:rgba(0,106,78,0.10);color:var(--dark-green);border:1px solid rgba(0,106,78,0.18);font-weight:700;font-size:.9rem;white-space:nowrap}
+.place-desc{margin:.5rem 0 .75rem;color:#333}
+.place-meta{display:grid;gap:.45rem;margin:.2rem 0 .75rem;color:#333}
+.meta-row{display:flex;gap:.5rem;align-items:flex-start}
+.meta-ico{width:18px;height:18px;opacity:.7;flex:0 0 auto;margin-top:.15rem}
+a.link{color:var(--link);text-decoration:none}
+a.link:hover{text-decoration:underline}
+.place-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.2rem}
+.action-btn{display:inline-flex;align-items:center;gap:.55rem;padding:.6rem 1rem;border-radius:12px;border:1px solid rgba(0,0,0,0.14);background:#fff;color:#222;font-weight:700}
+.action-btn:hover{background:rgba(255,255,255,0.7)}
+.map{height:70vh;border-radius:14px;overflow:hidden;background:rgba(255,255,255,0.7)}
+#map{width:100%;height:100%}
+.small-note{color:var(--muted);margin-top:.75rem}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.map{height:320px}}
+</style>
+</head>
+
+<body>
+
+<!-- Top row -->
+<div style="max-width:1000px;margin:0 auto 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+  <button class="secondary" id="btnHome">← Home</button>
+
+  <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+    <select id="languageSelect" class="secondary" style="padding:.7rem .9rem;">
+      <option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
+      <option value="it">Italiano</option><option value="pt">Português</option><option value="zh">中文</option><option value="ja">日本語</option>
+      <option value="ko">한국어</option><option value="ar">العربية</option><option value="ru">Русский</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option>
+    </select>
+  </div>
+</div>
+
+<section id="page1" class="card">
+  <span class="badge" id="badgeLocation">📍 Location</span>
+  <h1 id="titleCityQ">What city are you in?</h1>
+
+  <button class="secondary" id="btnUseLocation">Use Current Location</button>
+  <br><br>
+
+  <input id="cityInput" placeholder="Search for your city (ex: Los Angeles, CA)">
+  <br><br>
+
+  <button class="primary" id="btnContinue">Continue</button>
+
+  <p style="margin-top:2rem;" id="popularCities">Popular cities</p>
+  <div class="city-grid">
+    <button class="secondary" id="cityNY">New York</button>
+    <button class="secondary" id="cityLA">Los Angeles</button>
+    <button class="secondary" id="cityCHI">Chicago</button>
+    <button class="secondary" id="cityHOU">Houston</button>
+  </div>
+
+  <p class="small-note" id="tipNote">
+    Tip: this must be opened via <b>http://localhost</b> using <code>node server2.js</code>.
+    Opening via <code>file://</code> will break city search.
+  </p>
+</section>
+
+<section id="page2" class="card hidden">
+  <span class="badge" id="badgeResources">🏛 Resources</span>
+  <h1 id="cityTitle"></h1>
+
+  <div class="layout">
+    <div id="places"></div>
+    <div class="map"><div id="map"></div></div>
+  </div>
+
+  <p class="small-note" id="status"></p>
+  <p class="small-note" id="osmNote">Map data © OpenStreetMap contributors</p>
+</section>
+
+<script>
+/* ================== LANGUAGE PERSIST ================== */
+const LANG_KEY = "cc_lang";
+function getLangFromUrl(){
+  const u = new URL(window.location.href);
+  return u.searchParams.get("lang");
+}
+function getSavedLang(){ return localStorage.getItem(LANG_KEY); }
+function setSavedLang(lang){ localStorage.setItem(LANG_KEY, lang); }
+function navToHome(){
+  const lang = document.getElementById("languageSelect").value || "en";
+  setSavedLang(lang);
+  const u = new URL("/", window.location.origin);
+  u.searchParams.set("lang", lang);
+  window.location.href = u.toString();
+}
+
+/* ================== TRANSLATIONS (ACCESS PAGE) ================== */
+const translations = {
+  en:{btnHome:"← Home",badgeLocation:"📍 Location",titleCityQ:"What city are you in?",btnUseLocation:"Use Current Location",cityInput:"Search for your city (ex: Los Angeles, CA)",btnContinue:"Continue",popularCities:"Popular cities",tipNote:"Tip: this must be opened via http://localhost using node server2.js. Opening via file:// will break city search.",badgeResources:"🏛 Resources",osmNote:"Map data © OpenStreetMap contributors",
+      statusLoading:"Loading nearby resources…",statusDone:"Done. Real places loaded (nonprofit/gov prioritized, unverified included).",statusBusy:"Couldn’t load places right now (free Overpass can get busy). Try again in a minute.",
+      alertRunServer:"Run node server2.js and open http://localhost:8000/access_to_local_help.html (file:// breaks city search).",
+      alertTypeCity:"Type a city first.",alertCityNotFound:"City not found. Try adding state/country (ex: 'Paris, France').",alertLookupFailed:"City lookup failed. Make sure server2.js is running (node server2.js).",
+      centerPoint:"📍 Center point",dir:"🧭 Directions",call:"📞 Call",website:"🌐 Website",
+      noPhone:"No phone listed for this place.",noWebsite:"No website listed for this place.",
+      notListed:"Not listed",addressNotListed:"Address not listed",hoursNote:"Hours often not available in free OSM tags",milesAway:"miles away",
+      verified:"✅ Likely nonprofit/gov",unverified:"⚠️ Unverified",
+      noResultsTitle:"No results found",noResultsBody:"Sometimes OpenStreetMap has limited tags in an area. Try a bigger city, or increase the radius.",
+      catFoodTitle:"Food assistance",catFoodDesc:"Food banks, meal support, and related services.",
+      catHealthTitle:"Health",catHealthDesc:"Clinics, doctors, and nearby medical services.",
+      catLegalTitle:"Legal support",catLegalDesc:"Legal aid and advice centers (tagging varies).",
+      catHousingTitle:"Housing support",catHousingDesc:"Shelters and social support services."
+  },
+
+  es:{btnHome:"← Inicio",badgeLocation:"📍 Ubicación",titleCityQ:"¿En qué ciudad estás?",btnUseLocation:"Usar ubicación actual",cityInput:"Busca tu ciudad (ej: Los Angeles, CA)",btnContinue:"Continuar",popularCities:"Ciudades populares",tipNote:"Consejo: abre esto en http://localhost usando node server2.js. Abrir con file:// rompe la búsqueda.",badgeResources:"🏛 Recursos",osmNote:"Datos del mapa © colaboradores de OpenStreetMap",
+      statusLoading:"Cargando recursos cercanos…",statusDone:"Listo. Se cargaron lugares reales (prioriza ONG/gobierno, incluye no verificados).",statusBusy:"No se pudieron cargar lugares ahora. Intenta de nuevo en un minuto.",
+      alertRunServer:"Ejecuta node server2.js y abre http://localhost:8000/access_to_local_help.html (file:// rompe la búsqueda).",
+      alertTypeCity:"Escribe una ciudad primero.",alertCityNotFound:"Ciudad no encontrada. Prueba con estado/país (ej: 'Paris, France').",alertLookupFailed:"Falló la búsqueda. Asegúrate de que server2.js esté corriendo (node server2.js).",
+      centerPoint:"📍 Punto central",dir:"🧭 Direcciones",call:"📞 Llamar",website:"🌐 Sitio web",
+      noPhone:"No hay teléfono para este lugar.",noWebsite:"No hay sitio web para este lugar.",
+      notListed:"No disponible",addressNotListed:"Dirección no disponible",hoursNote:"Horarios a menudo no están disponibles en OSM",milesAway:"millas de distancia",
+      verified:"✅ Probable ONG/gob.",unverified:"⚠️ No verificado",
+      catFoodTitle:"Ayuda alimentaria",catFoodDesc:"Bancos de comida y comidas comunitarias.",
+      catHealthTitle:"Salud",catHealthDesc:"Clínicas, doctores y servicios médicos.",
+      catLegalTitle:"Apoyo legal",catLegalDesc:"Asistencia legal (puede variar).",
+      catHousingTitle:"Apoyo de vivienda",catHousingDesc:"Refugios y servicios de apoyo.",
+      noResultsTitle:"No se encontraron resultados",noResultsBody:"A veces OpenStreetMap tiene pocos datos. Prueba una ciudad más grande o aumenta el radio."
+  },
+
+  fr:{btnHome:"← Accueil",badgeLocation:"📍 Localisation",titleCityQ:"Dans quelle ville êtes-vous ?",btnUseLocation:"Utiliser ma position",cityInput:"Recherchez votre ville (ex : Los Angeles, CA)",btnContinue:"Continuer",popularCities:"Villes populaires",tipNote:"Conseil : ouvrez via http://localhost avec node server2.js. file:// casse la recherche.",badgeResources:"🏛 Ressources",osmNote:"Données carte © contributeurs OpenStreetMap",
+      statusLoading:"Chargement des ressources…",statusDone:"Terminé. Lieux réels chargés (ONG/gouv. prioritaires, non vérifiés inclus).",statusBusy:"Impossible de charger الآن. Réessayez dans une minute.",
+      alertRunServer:"Lancez node server2.js et ouvrez http://localhost:8000/access_to_local_help.html (file:// casse).",
+      alertTypeCity:"Saisissez une ville d’abord.",alertCityNotFound:"Ville introuvable. Ajoutez état/pays (ex : 'Paris, France').",alertLookupFailed:"Échec. Vérifiez que server2.js tourne (node server2.js).",
+      centerPoint:"📍 Point central",dir:"🧭 Itinéraire",call:"📞 Appeler",website:"🌐 Site web",
+      noPhone:"Aucun téléphone indiqué.",noWebsite:"Aucun site web indiqué.",
+      notListed:"Non indiqué",addressNotListed:"Adresse non indiquée",hoursNote:"Horaires souvent indisponibles dans OSM",milesAway:"miles",
+      verified:"✅ Probable ONG/gouv.",unverified:"⚠️ Non vérifié",
+      catFoodTitle:"Aide alimentaire",catFoodDesc:"Banques alimentaires et repas.",
+      catHealthTitle:"Santé",catHealthDesc:"Cliniques, médecins et services médicaux.",
+      catLegalTitle:"Aide juridique",catLegalDesc:"Aide juridique (variable).",
+      catHousingTitle:"Aide au logement",catHousingDesc:"Refuges et services de soutien.",
+      noResultsTitle:"Aucun résultat",noResultsBody:"Parfois OSM a peu d’infos. Essayez une plus grande ville ou augmentez le rayon."
+  },
+
+  /* keep other languages fallback to EN for any missing keys */
+  de:{},it:{},pt:{},zh:{},ja:{},ko:{},ar:{},ru:{},hi:{},bn:{}
+};
+
+const ACCESS_IDS = [
+  "btnHome","badgeLocation","titleCityQ","btnUseLocation","cityInput","btnContinue","popularCities","tipNote",
+  "badgeResources","osmNote"
+];
+
+function applyLanguage(lang){
+  const t = translations[lang] || translations.en;
+  document.documentElement.lang = lang;
+
+  // set button/text nodes
+  const setText = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val; };
+
+  setText("btnHome", t.btnHome || translations.en.btnHome);
+  setText("badgeLocation", t.badgeLocation || translations.en.badgeLocation);
+  setText("titleCityQ", t.titleCityQ || translations.en.titleCityQ);
+  setText("btnUseLocation", t.btnUseLocation || translations.en.btnUseLocation);
+  setText("btnContinue", t.btnContinue || translations.en.btnContinue);
+  setText("popularCities", t.popularCities || translations.en.popularCities);
+  setText("badgeResources", t.badgeResources || translations.en.badgeResources);
+  setText("osmNote", t.osmNote || translations.en.osmNote);
+
+  // placeholder
+  const cityInput = document.getElementById("cityInput");
+  if(cityInput) cityInput.placeholder = t.cityInput || translations.en.cityInput;
+
+  // tipNote includes html tags; keep simple (no innerHTML injection from user input)
+  const tip = document.getElementById("tipNote");
+  if(tip) tip.textContent = (t.tipNote || translations.en.tipNote);
+
+  // re-render category titles/descs if already on page2
+  if(!document.getElementById("page2").classList.contains("hidden")){
+    if(lastCenterLabel){
+      document.getElementById("cityTitle").textContent = cityTitleText(lastCenterLabel);
+    }
+    // reload the places UI to update category headers + buttons
+    if(lastLatLng) loadResources(lastLatLng.lat, lastLatLng.lng).catch(()=>{});
+  }
+}
+
+function tGet(lang, key){
+  const t = translations[lang] || translations.en;
+  return t[key] || translations.en[key] || "";
+}
+
+/* ================== ORIGINAL APP LOGIC (WITH TRANSLATION HOOKS) ================== */
+let map;
+let leafletMarkers = [];
+let lastLatLng = null;
+let lastCenterLabel = null;
+
+function currentLang(){ return document.getElementById("languageSelect").value || "en"; }
+
+function setStatus(msg){ document.getElementById("status").textContent = msg || ""; }
+
+const CITY_COORDS = {
+  "New York, NY": { lat: 40.7128, lng: -74.0060, label: "New York" },
+  "Los Angeles, CA": { lat: 34.0522, lng: -118.2437, label: "Los Angeles" },
+  "Chicago, IL": { lat: 41.8781, lng: -87.6298, label: "Chicago" },
+  "Houston, TX": { lat: 29.7604, lng: -95.3698, label: "Houston" }
+};
+
+function ico(kind){
+  const common = `class="meta-ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"`;
+  if(kind==="pin") return `<svg ${common}><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" stroke="currentColor" stroke-width="1.8"/></svg>`;
+  if(kind==="phone") return `<svg ${common}><path d="M6.5 3.5h3l1 4-2 1.5c1.5 3.1 3.9 5.5 7 7L17 14l4 1v3c0 1.1-.9 2-2 2-9.4 0-17-7.6-17-17 0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+  if(kind==="globe") return `<svg ${common}><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18" stroke="currentColor" stroke-width="1.8"/><path d="M12 3c2.5 2.6 3.9 6 3.9 9s-1.4 6.4-3.9 9c-2.5-2.6-3.9-6-3.9-9S9.5 5.6 12 3Z" stroke="currentColor" stroke-width="1.8"/></svg>`;
+  if(kind==="clock") return `<svg ${common}><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  return "";
+}
+
+function toRad(v){ return v * Math.PI / 180; }
+function haversine(lat1,lon1,lat2,lon2){
+  const R=3958.8;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+}
+
+/* categories are translated via getters */
+function categoryDefs(){
+  const lang = currentLang();
+  return [
+    { key:"food", title:tGet(lang,"catFoodTitle"), desc:tGet(lang,"catFoodDesc"), filters:[
+      `node["amenity"="social_facility"]["social_facility"="food_bank"]`,
+      `way["amenity"="social_facility"]["social_facility"="food_bank"]`,
+      `relation["amenity"="social_facility"]["social_facility"="food_bank"]`,
+      `node["amenity"="social_facility"]["social_facility"="soup_kitchen"]`,
+      `way["amenity"="social_facility"]["social_facility"="soup_kitchen"]`,
+      `relation["amenity"="social_facility"]["social_facility"="soup_kitchen"]`,
+      `node["amenity"="food_bank"]`,`way["amenity"="food_bank"]`,`relation["amenity"="food_bank"]`
+    ]},
+    { key:"health", title:tGet(lang,"catHealthTitle"), desc:tGet(lang,"catHealthDesc"), filters:[
+      `node["amenity"="clinic"]`,`way["amenity"="clinic"]`,`relation["amenity"="clinic"]`,
+      `node["amenity"="doctors"]`,`way["amenity"="doctors"]`,`relation["amenity"="doctors"]`
+    ]},
+    { key:"legal", title:tGet(lang,"catLegalTitle"), desc:tGet(lang,"catLegalDesc"), filters:[
+      `node["office"="lawyer"]`,`way["office"="lawyer"]`,`relation["office"="lawyer"]`,
+      `node["amenity"="social_facility"]["social_facility"="counselling"]`,
+      `way["amenity"="social_facility"]["social_facility"="counselling"]`,
+      `relation["amenity"="social_facility"]["social_facility"="counselling"]`
+    ]},
+    { key:"housing", title:tGet(lang,"catHousingTitle"), desc:tGet(lang,"catHousingDesc"), filters:[
+      `node["amenity"="shelter"]`,`way["amenity"="shelter"]`,`relation["amenity"="shelter"]`,
+      `node["amenity"="social_facility"]`,`way["amenity"="social_facility"]`,`relation["amenity"="social_facility"]`
+    ]}
+  ];
+}
+
+function looksNonprofitOrGov(tags){
+  const t=tags||{};
+  const name=(t.name||"").toLowerCase();
+  const operator=(t.operator||"").toLowerCase();
+  const website=(t.website||t["contact:website"]||"").toLowerCase();
+  const hay=`${name} ${operator}`.trim();
+  if(website.includes(".gov")) return true;
+  if(website.includes(".org")) return true;
+  const nonprofitWords=["foundation","charity","nonprofit","non-profit","aid","shelter","community","mission","ministry","food bank","legal aid"];
+  const govWords=["city of","county","department","public health","state of","municipal","authority","office of"];
+  if(nonprofitWords.some(w=>hay.includes(w))) return true;
+  if(govWords.some(w=>hay.includes(w))) return true;
+  const s=JSON.stringify(t).toLowerCase();
+  if(s.includes("government")||s.includes("ngo")||s.includes("non_profit")||s.includes("nonprofit")) return true;
+  return false;
+}
+
+function escapeHtml(str){ return String(str??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s])); }
+function escapeAttr(str){ return String(str??"").replace(/["']/g,""); }
+
+async function geocodeCity(cityText){
+  const res=await fetch(`/api/geocode?q=${encodeURIComponent(cityText)}`);
+  if(!res.ok) throw new Error(`Geocode failed: ${res.status}`);
+  const data=await res.json();
+  if(!data||!data.length) return null;
+  return { lat:parseFloat(data[0].lat), lng:parseFloat(data[0].lon), label:data[0].display_name };
+}
+
+async function overpassFetch(lat,lng,radiusMeters,categoryFilters){
+  const around=`(around:${radiusMeters},${lat},${lng})`;
+  const query=`[out:json][timeout:25];( ${categoryFilters.map(f=>`${f}${around};`).join("\n  ")} );out center tags;`;
+  const res=await fetch("/api/overpass",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query})});
+  const text=await res.text();
+  let json; try{ json=JSON.parse(text); } catch{ throw new Error("Overpass returned non-JSON: "+text.slice(0,200)); }
+  return json.elements||[];
+}
+
+function normalizeElement(el){
+  const tags=el.tags||{};
+  const name=tags.name||"Unnamed place";
+  const lat=el.lat??el.center?.lat;
+  const lng=el.lon??el.center?.lon;
+  const website=tags.website||tags["contact:website"]||"";
+  const phone=tags.phone||tags["contact:phone"]||"";
+  const addrParts=[tags["addr:housenumber"],tags["addr:street"]].filter(Boolean).join(" ");
+  const city=tags["addr:city"]||"";
+  const state=tags["addr:state"]||"";
+  const postcode=tags["addr:postcode"]||"";
+  const address=[addrParts,[city,state].filter(Boolean).join(", "),postcode].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+  return { name, lat, lng, website, phone, address, tags };
+}
+
+function cityTitleText(label){
+  // keep the city label as-is, translate only the prefix
+  // EN fallback: "Local Help Near"
+  const lang=currentLang();
+  const prefix = (lang==="es") ? "Ayuda local cerca de " :
+                 (lang==="fr") ? "Aide locale près de " :
+                 "Local Help Near ";
+  return prefix + (label || "your area");
+}
+
+function showPage2(lat,lng,label){
+  lastLatLng = {lat,lng};
+  lastCenterLabel = label || "your area";
+
+  document.getElementById("page1").classList.add("hidden");
+  document.getElementById("page2").classList.remove("hidden");
+  document.getElementById("cityTitle").textContent = cityTitleText(lastCenterLabel);
+
+  if(!map){
+    map=L.map("map",{zoomControl:true}).setView([lat,lng],13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  } else {
+    map.setView([lat,lng],13);
+  }
+
+  leafletMarkers.forEach(m=>m.remove());
+  leafletMarkers=[];
+
+  leafletMarkers.push(L.marker([lat,lng]).addTo(map).bindPopup(tGet(currentLang(),"centerPoint")));
+
+  loadResources(lat,lng).catch(err=>{
+    console.error(err);
+    setStatus(tGet(currentLang(),"statusBusy"));
+  });
+}
+
+async function loadResources(lat,lng){
+  const placesContainer=document.getElementById("places");
+  placesContainer
+  placesContainer.innerHTML = "";
+  setStatus(tGet(currentLang(),"statusLoading"));
+
+  const radiusMeters = 4000; // ~2.5 miles
+  const cats = categoryDefs();
+  const lang = currentLang();
+
+  // Collect results per category
+  const byCat = {};
+  for (const cat of cats) {
+    try {
+      const raw = await overpassFetch(lat, lng, radiusMeters, cat.filters);
+      const norm = raw.map(normalizeElement).filter(p => p.lat && p.lng);
+
+      // Deduplicate by name+lat+lng
+      const seen = new Set();
+      const dedup = [];
+      for (const p of norm) {
+        const key = `${(p.name||"").toLowerCase()}|${p.lat.toFixed(5)}|${p.lng.toFixed(5)}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        dedup.push(p);
+      }
+
+      // Sort by distance
+      dedup.sort((a,b)=>haversine(lat,lng,a.lat,a.lng)-haversine(lat,lng,b.lat,b.lng));
+
+      byCat[cat.key] = dedup.slice(0, 12);
+    } catch (e) {
+      console.warn("Category fetch failed", cat.key, e);
+      byCat[cat.key] = [];
+    }
+  }
+
+  // Render UI
+  let any = false;
+
+  for (const cat of cats) {
+    const list = byCat[cat.key] || [];
+    if (list.length) any = true;
+
+    const section = document.createElement("div");
+    section.className = "category";
+
+    const h2 = document.createElement("h2");
+    h2.textContent = cat.title;
+    section.appendChild(h2);
+
+    const desc = document.createElement("p");
+    desc.style.marginTop = "-0.25rem";
+    desc.style.marginBottom = "0.9rem";
+    desc.style.color = "var(--muted)";
+    desc.textContent = cat.desc;
+    section.appendChild(desc);
+
+    list.forEach((p, idx) => {
+      const miles = haversine(lat,lng,p.lat,p.lng);
+      const milesLabel = `${miles.toFixed(1)} ${tGet(lang,"milesAway")}`;
+
+      const verified = looksNonprofitOrGov(p.tags);
+      const pillText = verified ? tGet(lang,"verified") : tGet(lang,"unverified");
+
+      // Add marker to map
+      const marker = L.marker([p.lat, p.lng]).addTo(map);
+      leafletMarkers.push(marker);
+
+      const safeName = escapeHtml(p.name || "Unnamed place");
+      marker.bindPopup(`<b>${safeName}</b><br>${escapeHtml(milesLabel)}`);
+
+      const card = document.createElement("div");
+      card.className = "place";
+
+      const top = document.createElement("div");
+      top.className = "place-top";
+
+      const left = document.createElement("div");
+      left.style.flex = "1";
+
+      const strong = document.createElement("strong");
+      strong.textContent = p.name || "Unnamed place";
+      left.appendChild(strong);
+
+      const pill = document.createElement("span");
+      pill.className = "place-pill";
+      pill.textContent = pillText;
+      top.appendChild(left);
+      top.appendChild(pill);
+
+      card.appendChild(top);
+
+      // Meta
+      const meta = document.createElement("div");
+      meta.className = "place-meta";
+
+      // Address
+      const addrRow = document.createElement("div");
+      addrRow.className = "meta-row";
+      addrRow.innerHTML = `${ico("pin")} <div>${escapeHtml(p.address || tGet(lang,"addressNotListed"))}<br><span style="color:var(--muted);font-size:.95rem">${escapeHtml(milesLabel)}</span></div>`;
+      meta.appendChild(addrRow);
+
+      // Phone
+      const phoneRow = document.createElement("div");
+      phoneRow.className = "meta-row";
+      phoneRow.innerHTML = `${ico("phone")} <div>${p.phone ? escapeHtml(p.phone) : `<span style="color:var(--muted)">${escapeHtml(tGet(lang,"notListed"))}</span>`}</div>`;
+      meta.appendChild(phoneRow);
+
+      // Website
+      const webRow = document.createElement("div");
+      webRow.className = "meta-row";
+      const safeWeb = p.website ? escapeAttr(p.website) : "";
+      webRow.innerHTML = `${ico("globe")} <div>${
+        p.website
+          ? `<a class="link" href="${safeWeb.startsWith("http") ? safeWeb : "https://" + safeWeb}" target="_blank" rel="noopener">${escapeHtml(p.website)}</a>`
+          : `<span style="color:var(--muted)">${escapeHtml(tGet(lang,"notListed"))}</span>`
+      }</div>`;
+      meta.appendChild(webRow);
+
+      // Hours (OSM often missing)
+      const hoursRow = document.createElement("div");
+      hoursRow.className = "meta-row";
+      hoursRow.innerHTML = `${ico("clock")} <div><span style="color:var(--muted)">${escapeHtml(tGet(lang,"hoursNote"))}</span></div>`;
+      meta.appendChild(hoursRow);
+
+      card.appendChild(meta);
+
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "place-actions";
+
+      // Directions (Google Maps link)
+      const aDir = document.createElement("a");
+      aDir.className = "action-btn link";
+      aDir.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${p.lat},${p.lng}`)}`;
+      aDir.target = "_blank";
+      aDir.rel = "noopener";
+      aDir.textContent = tGet(lang,"dir");
+      actions.appendChild(aDir);
+
+      // Call
+      const btnCall = document.createElement("button");
+      btnCall.className = "action-btn";
+      btnCall.type = "button";
+      btnCall.textContent = tGet(lang,"call");
+      btnCall.addEventListener("click", () => {
+        if (!p.phone) return alert(tGet(lang,"noPhone"));
+        const tel = String(p.phone).replace(/[^\d+]/g,"");
+        window.location.href = `tel:${tel}`;
+      });
+      actions.appendChild(btnCall);
+
+      // Website
+      const btnWeb = document.createElement("button");
+      btnWeb.className = "action-btn";
+      btnWeb.type = "button";
+      btnWeb.textContent = tGet(lang,"website");
+      btnWeb.addEventListener("click", () => {
+        if (!p.website) return alert(tGet(lang,"noWebsite"));
+        const url = p.website.startsWith("http") ? p.website : ("https://" + p.website);
+        window.open(url, "_blank", "noopener");
+      });
+      actions.appendChild(btnWeb);
+
+      card.appendChild(actions);
+
+      // Hover -> focus marker
+      card.addEventListener("mouseenter", () => marker.openPopup());
+      card.addEventListener("mouseleave", () => marker.closePopup());
+      card.addEventListener("click", () => {
+        map.setView([p.lat, p.lng], 15, { animate: true });
+        marker.openPopup();
+      });
+
+      section.appendChild(card);
+    });
+
+    placesContainer.appendChild(section);
+  }
+
+  if (!any) {
+    const empty = document.createElement("div");
+    empty.className = "place";
+    empty.innerHTML = `<div class="place-top"><strong>${escapeHtml(tGet(lang,"noResultsTitle"))}</strong></div>
+      <div class="place-desc">${escapeHtml(tGet(lang,"noResultsBody"))}</div>`;
+    placesContainer.appendChild(empty);
+  }
+
+  setStatus(tGet(lang,"statusDone"));
+}
+
+/* ================== UI EVENTS ================== */
+document.getElementById("btnHome").addEventListener("click", navToHome);
+
+document.getElementById("btnUseLocation").addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    alert(tGet(currentLang(),"alertLookupFailed"));
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      showPage2(pos.coords.latitude, pos.coords.longitude, "your location");
+    },
+    err => {
+      console.error(err);
+      alert(tGet(currentLang(),"alertLookupFailed"));
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
+});
+
+document.getElementById("btnContinue").addEventListener("click", async () => {
+  const cityText = document.getElementById("cityInput").value.trim();
+  if (!cityText) return alert(tGet(currentLang(),"alertTypeCity"));
+
+  try {
+    const geo = await geocodeCity(cityText);
+    if (!geo) return alert(tGet(currentLang(),"alertCityNotFound"));
+    showPage2(geo.lat, geo.lng, geo.label);
+  } catch (e) {
+    console.error(e);
+    alert(tGet(currentLang(),"alertLookupFailed"));
+  }
+});
+
+// Popular cities
+document.getElementById("cityNY").addEventListener("click", () => {
+  const c = CITY_COORDS["New York, NY"];
+  document.getElementById("cityInput").value = "New York, NY";
+  showPage2(c.lat, c.lng, c.label);
+});
+document.getElementById("cityLA").addEventListener("click", () => {
+  const c = CITY_COORDS["Los Angeles, CA"];
+  document.getElementById("cityInput").value = "Los Angeles, CA";
+  showPage2(c.lat, c.lng, c.label);
+});
+document.getElementById("cityCHI").addEventListener("click", () => {
+  const c = CITY_COORDS["Chicago, IL"];
+  document.getElementById("cityInput").value = "Chicago, IL";
+  showPage2(c.lat, c.lng, c.label);
+});
+document.getElementById("cityHOU").addEventListener("click", () => {
+  const c = CITY_COORDS["Houston, TX"];
+  document.getElementById("cityInput").value = "Houston, TX";
+  showPage2(c.lat, c.lng, c.label);
+});
+
+// Language change
+document.getElementById("languageSelect").addEventListener("change", (e) => {
+  const lang = e.target.value || "en";
+  setSavedLang(lang);
+  applyLanguage(lang);
+});
+
+/* ================== INITIAL LANGUAGE + BOOT ================== */
+(function init(){
+  // pull language in this priority order: ?lang= -> localStorage -> default en
+  const urlLang = getLangFromUrl();
+  const saved = getSavedLang();
+  const lang = urlLang || saved || "en";
+
+  const select = document.getElementById("languageSelect");
+  if (Array.from(select.options).some(o => o.value === lang)) {
+    select.value = lang;
+  } else {
+    select.value = "en";
+  }
+
+  applyLanguage(select.value);
+})();
+</script>
+</body>
+</html>

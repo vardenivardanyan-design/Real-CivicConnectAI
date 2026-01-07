@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Survey</title>
+
+  <style>
+    :root{
+      --c-sky: #D5EEFD;
+      --c-teal: #88CFA1;
+      --c-mint: #ACE1AF;
+      --c-forest:#006A4E;
+
+      --text: #10332b;
+      --muted: rgba(16,51,43,0.62);
+      --stroke: rgba(0,106,78,0.16);
+
+      --glass: rgba(255,255,255,0.55);
+      --glass-2: rgba(255,255,255,0.40);
+      --glass-3: rgba(255,255,255,0.30);
+
+      --shadow: 0 18px 55px rgba(0,0,0,0.10);
+      --radius: 22px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: var(--font);
+      color: var(--text);
+
+      background:
+        radial-gradient(900px 600px at 12% 12%, rgba(213,238,253,0.95), transparent 60%),
+        radial-gradient(900px 650px at 88% 25%, rgba(172,225,175,0.65), transparent 60%),
+        radial-gradient(900px 700px at 50% 120%, rgba(136,207,161,0.55), transparent 60%),
+        linear-gradient(180deg, rgba(213,238,253,0.55), rgba(172,225,175,0.40));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 26px;
+    }
+
+    .app{
+      width: min(1020px, 100%);
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+      padding: 18px;
+      border-radius: calc(var(--radius) + 6px);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .left{
+      border-radius: var(--radius);
+      background: var(--glass-2);
+      border: 1px solid var(--stroke);
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      justify-content:space-between;
+      min-height: 560px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .dot{
+      width: 12px; height: 12px; border-radius: 999px;
+      background: var(--c-forest);
+      box-shadow: 0 0 0 6px rgba(0,106,78,0.12);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: var(--c-forest);
+      font-weight: 700;
+    }
+    .brand span{
+      margin-left:auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .avatarWrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 6px 0;
+    }
+    .avatarWrap img{
+      max-width: 230px;
+      width: 100%;
+      height:auto;
+      filter: drop-shadow(0 20px 26px rgba(0,0,0,0.12));
+      user-select:none;
+      pointer-events:none;
+    }
+
+    .tip{
+      padding: 12px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid var(--stroke);
+      color: rgba(16,51,43,0.70);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .right{
+      border-radius: var(--radius);
+      background: var(--glass-2);
+      border: 1px solid var(--stroke);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 560px;
+    }
+
+    .topbar{
+      padding: 16px 18px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      border-bottom: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.34);
+    }
+
+    .homeBtn{
+      border: 1px solid rgba(0,106,78,0.18);
+      background: rgba(255,255,255,0.34);
+      color: rgba(16,51,43,0.92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      white-space: nowrap;
+    }
+
+    .homeBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.48);
+      border-color: rgba(0,106,78,0.24);
+    }
+
+    .ai-actions{
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        }
+
+
+    .progress{
+      height: 10px;
+      flex: 1;
+      background: rgba(0,106,78,0.10);
+      border: 1px solid rgba(0,106,78,0.14);
+      border-radius: 999px;
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--c-forest), rgba(0,106,78,0.55));
+      border-radius: 999px;
+      transition: width 240ms ease;
+    }
+    .stepText{
+      font-size: 12px;
+      color: rgba(16,51,43,0.70);
+      white-space:nowrap;
+    }
+
+    .content{
+      padding: 18px;
+      flex: 1;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    .bubble{
+      position: relative;
+      width: fit-content;
+      max-width: 100%;
+      background: rgba(255,255,255,0.38);
+      border: 1px solid rgba(0,106,78,0.16);
+      border-radius: 18px;
+      padding: 14px 14px;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .bubble::before{
+      content:"";
+      position:absolute;
+      left: -7px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      background: rgba(255,255,255,0.38);
+      border-left: 1px solid rgba(0,106,78,0.16);
+      border-bottom: 1px solid rgba(0,106,78,0.16);
+      transform: rotate(45deg);
+      border-bottom-left-radius: 4px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .qTitle{
+      margin:0;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 650;
+      color: var(--c-forest);
+    }
+    .qHint{
+      margin: 6px 0 0;
+      color: rgba(16,51,43,0.70);
+      font-size: 12px;
+    }
+
+    .answers{
+      margin-top: 4px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      max-width: 560px;
+    }
+
+    .optionGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .opt{
+      border: 1px solid rgba(0,106,78,0.16);
+      background: rgba(255,255,255,0.32);
+      color: rgba(16,51,43,0.92);
+      padding: 12px 12px;
+      border-radius: 16px;
+      cursor:pointer;
+      text-align:left;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      min-height: 44px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .opt:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.46);
+      border-color: rgba(0,106,78,0.22);
+    }
+    .opt.selected{
+      background: rgba(136,207,161,0.35);
+      border-color: rgba(0,106,78,0.45);
+      box-shadow: 0 0 0 3px rgba(0,106,78,0.12);
+    }
+
+    .field{ display:flex; flex-direction:column; gap: 8px; }
+    input[type="text"], input[type="number"], select{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,106,78,0.16);
+      background: rgba(255,255,255,0.35);
+      color: rgba(16,51,43,0.95);
+      outline: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    input::placeholder{ color: rgba(16,51,43,0.45); }
+    input:focus, select:focus{
+      border-color: rgba(0,106,78,0.35);
+      box-shadow: 0 0 0 3px rgba(0,106,78,0.10);
+    }
+    .smallNote{
+      color: rgba(16,51,43,0.68);
+      font-size: 12px;
+    }
+
+    .pillWrap{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+    }
+    .pill{
+      position: relative;
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,106,78,0.16);
+      background: rgba(255,255,255,0.30);
+      cursor:pointer;
+      user-select:none;
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.44);
+    }
+    .pill input{
+      appearance:none;
+      width: 16px; height: 16px;
+      border-radius: 5px;
+      border: 1px solid rgba(0,106,78,0.22);
+      background: rgba(255,255,255,0.45);
+      display:grid;
+      place-items:center;
+      margin:0;
+    }
+    .pill input:checked{
+      background: rgba(0,106,78,0.22);
+      border-color: rgba(0,106,78,0.55);
+      box-shadow: 0 0 0 3px rgba(0,106,78,0.10);
+    }
+    .pill input:checked::after{
+      content:"✓";
+      font-size: 12px;
+      color: rgba(16,51,43,0.92);
+      transform: translateY(-0.5px);
+    }
+
+    .footer{
+      padding: 14px 18px;
+      border-top: 1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      justify-content:space-between;
+      background: rgba(255,255,255,0.34);
+    }
+    .toast{
+      font-size: 12px;
+      color: rgba(16,51,43,0.70);
+    }
+    .btnRow{ display:flex; gap: 10px; }
+    .btn{
+      border: 1px solid rgba(0,106,78,0.18);
+      background: rgba(255,255,255,0.34);
+      color: rgba(16,51,43,0.92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      min-width: 92px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.48);
+      border-color: rgba(0,106,78,0.24);
+    }
+    .btn.primary{
+      background: rgba(0,106,78,0.16);
+      border-color: rgba(0,106,78,0.40);
+      box-shadow: 0 0 0 3px rgba(0,106,78,0.08) inset;
+      font-weight: 650;
+    }
+    .btn.primary:disabled{
+      opacity: 0.55;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .summary{
+      border-radius: 18px;
+      border: 1px solid rgba(0,106,78,0.16);
+      background: rgba(255,255,255,0.34);
+      padding: 14px;
+      max-width: 680px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .summary h3{ margin:0 0 10px; font-size: 14px; color: var(--c-forest); }
+
+    .readable{
+      border-radius: 14px;
+      border: 1px solid rgba(0,106,78,0.14);
+      background: rgba(255,255,255,0.32);
+      padding: 12px;
+      color: rgba(16,51,43,0.92);
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    details{
+      margin-top: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,106,78,0.14);
+      background: rgba(255,255,255,0.26);
+      padding: 10px 12px;
+    }
+    details summary{
+      cursor: pointer;
+      color: rgba(16,51,43,0.80);
+      font-size: 12px;
+      user-select:none;
+    }
+    pre{
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,106,78,0.14);
+      background: rgba(255,255,255,0.32);
+      overflow:auto;
+      color: rgba(16,51,43,0.92);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 860px){
+      .app{ grid-template-columns: 1fr; }
+      .left{ min-height: auto; }
+      .avatarWrap img{ max-width: 170px; }
+      .optionGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="left">
+      <div class="brand">
+        <div class="dot"></div>
+        <h1 id="brandTitle">COMMUNITY SURVEY</h1>
+        <span id="clock"></span>
+      </div>
+
+      <div class="avatarWrap">
+        <img src="girl-smiling.png" alt="Guide character" />
+      </div>
+
+      <div class="tip" id="tipText">
+        <b>Tip:</b> Press <b>Enter</b> on text questions to go next.
+        <br/>Nothing is uploaded — this runs locally in your browser.
+      </div>
+    </aside>
+
+    <main class="right">
+      <div class="topbar">
+        <button class="homeBtn" type="button" onclick="window.location.href='/'">← Home</button>
+
+        <div class="progress" aria-label="Progress">
+          <div class="bar" id="bar"></div>
+        </div>
+        <div class="stepText" id="stepText">Step 1 of 8</div>
+      </div>
+
+      <section class="content">
+        <div class="bubble" id="bubble">
+          <p class="qTitle" id="qTitle">Loading…</p>
+          <p class="qHint" id="qHint"></p>
+        </div>
+
+        <div class="answers" id="answers"></div>
+        <div id="summaryMount"></div>
+      </section>
+
+      <div class="footer">
+        <div class="toast" id="toast"> </div>
+        <div class="btnRow">
+          <button class="btn" id="backBtn">Back</button>
+          <button class="btn primary" id="nextBtn" disabled>Next</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  // --- i18n helpers ---------------------------------------------------------
+
+  // Map the selected label to a language code + a "tell the AI" name
+  const LANGUAGE_MAP = {
+    "English":   { code: "en", name: "English", rtl: false },
+    "Spanish":   { code: "es", name: "Spanish", rtl: false },
+    "Mandarin":  { code: "zh", name: "Simplified Chinese", rtl: false },
+    "Arabic":    { code: "ar", name: "Arabic", rtl: true },
+    "French":    { code: "fr", name: "French", rtl: false },
+    "Hindi":     { code: "hi", name: "Hindi", rtl: false },
+    "Other":     { code: "en", name: "English", rtl: false } // fallback
+  };
+
+  // UI strings per language (minimal + covers your survey)
+  const I18N = {
+    en: {
+      brandTitle: "COMMUNITY SURVEY",
+      tipHtml: "<b>Tip:</b> Press <b>Enter</b> on text questions to go next.<br/>Nothing is uploaded — this runs locally in your browser.",
+      back: "Back",
+      next: "Next",
+      finish: "Finish",
+      step: (i, total) => `Step ${i} of ${total}`,
+      complete: "Complete",
+      toastAnswer: "Please answer before continuing.",
+      cityNote: "You can type any city/place.",
+      multiNote: "Choose at least 1 option.",
+      doneTitle: "All done!",
+      doneHint: "Creating a readable summary…",
+      summaryTitle: "Personalized info",
+      contacting: "Contacting assistant…",
+      technical: "Show technical details (JSON)",
+      copyJson: "Copy JSON",
+      dlAgain: "Download JSON again",
+      copied: "Copied ✅",
+      copyFail: "Copy failed — select and copy manually.",
+      summaryReady: "Summary ready ✅",
+      dlOk: "Downloaded JSON ✅",
+      aiFailHint: "Your JSON was downloaded. (AI summary requires a server.)",
+      aiFailBody: (errMsg) =>
+        "Could not reach the AI service.\n\n" +
+        "To enable this, create a backend endpoint at /api/ai-summary that returns:\n" +
+        "{ summary: \"...text...\" }\n\n" +
+        "Error: " + errMsg
+    },
+    es: {
+      brandTitle: "ENCUESTA COMUNITARIA",
+      tipHtml: "<b>Consejo:</b> Presiona <b>Enter</b> en preguntas de texto para continuar.<br/>No se sube nada — esto se ejecuta localmente en tu navegador.",
+      back: "Atrás",
+      next: "Siguiente",
+      finish: "Finalizar",
+      step: (i, total) => `Paso ${i} de ${total}`,
+      complete: "Completado",
+      toastAnswer: "Responde antes de continuar.",
+      cityNote: "Puedes escribir cualquier ciudad/lugar.",
+      multiNote: "Elige al menos 1 opción.",
+      doneTitle: "¡Listo!",
+      doneHint: "Creando un resumen…",
+      summaryTitle: "Información personalizada",
+      contacting: "Contactando al asistente…",
+      technical: "Mostrar detalles técnicos (JSON)",
+      copyJson: "Copiar JSON",
+      dlAgain: "Descargar JSON otra vez",
+      copied: "Copiado ✅",
+      copyFail: "No se pudo copiar — selecciona y copia manualmente.",
+      summaryReady: "Resumen listo ✅",
+      dlOk: "JSON descargado ✅",
+      aiFailHint: "Tu JSON fue descargado. (El resumen con IA requiere un servidor.)",
+      aiFailBody: (errMsg) =>
+        "No se pudo conectar al servicio de IA.\n\n" +
+        "Para habilitarlo, crea un endpoint en /api/ai-summary que devuelva:\n" +
+        "{ summary: \"...texto...\" }\n\n" +
+        "Error: " + errMsg
+    },
+    fr: {
+      brandTitle: "QUESTIONNAIRE COMMUNAUTAIRE",
+      tipHtml: "<b>Astuce :</b> Appuyez sur <b>Entrée</b> pour passer à la question suivante.<br/>Rien n’est envoyé — tout fonctionne localement dans votre navigateur.",
+      back: "Retour",
+      next: "Suivant",
+      finish: "Terminer",
+      step: (i, total) => `Étape ${i} sur ${total}`,
+      complete: "Terminé",
+      toastAnswer: "Veuillez répondre avant de continuer.",
+      cityNote: "Vous pouvez saisir n’importe quelle ville/lieu.",
+      multiNote: "Choisissez au moins 1 option.",
+      doneTitle: "C’est fini !",
+      doneHint: "Création d’un résumé…",
+      summaryTitle: "Infos personnalisées",
+      contacting: "Contact de l’assistant…",
+      technical: "Afficher les détails techniques (JSON)",
+      copyJson: "Copier JSON",
+      dlAgain: "Télécharger le JSON",
+      copied: "Copié ✅",
+      copyFail: "Copie impossible — sélectionnez et copiez manuellement.",
+      summaryReady: "Résumé prêt ✅",
+      dlOk: "JSON téléchargé ✅",
+      aiFailHint: "Votre JSON a été téléchargé. (Le résumé IA nécessite un serveur.)",
+      aiFailBody: (errMsg) =>
+        "Impossible de joindre le service IA.\n\n" +
+        "Pour l’activer, créez un endpoint /api/ai-summary qui renvoie :\n" +
+        "{ summary: \"...texte...\" }\n\n" +
+        "Erreur : " + errMsg
+    },
+    zh: {
+      brandTitle: "社区问卷",
+      tipHtml: "<b>提示：</b> 在文本问题中按 <b>Enter</b> 可继续下一步。<br/>不会上传任何内容——仅在浏览器本地运行。",
+      back: "返回",
+      next: "下一步",
+      finish: "完成",
+      step: (i, total) => `第 ${i} / ${total} 步`,
+      complete: "已完成",
+      toastAnswer: "请先回答再继续。",
+      cityNote: "你可以填写任何城市/地点。",
+      multiNote: "至少选择 1 项。",
+      doneTitle: "完成啦！",
+      doneHint: "正在生成摘要…",
+      summaryTitle: "个性化信息",
+      contacting: "正在联系助手…",
+      technical: "显示技术细节（JSON）",
+      copyJson: "复制 JSON",
+      dlAgain: "再次下载 JSON",
+      copied: "已复制 ✅",
+      copyFail: "复制失败——请手动选择复制。",
+      summaryReady: "摘要已就绪 ✅",
+      dlOk: "JSON 已下载 ✅",
+      aiFailHint: "你的 JSON 已下载。（AI 摘要需要服务器支持。）",
+      aiFailBody: (errMsg) =>
+        "无法连接到 AI 服务。\n\n" +
+        "要启用它，请创建 /api/ai-summary 后端接口并返回：\n" +
+        "{ summary: \"...文本...\" }\n\n" +
+        "错误：" + errMsg
+    },
+    ar: {
+      brandTitle: "استبيان المجتمع",
+      tipHtml: "<b>نصيحة:</b> اضغط <b>Enter</b> في أسئلة النص للانتقال للسؤال التالي.<br/>لا يتم رفع أي شيء — يعمل محليًا داخل المتصفح.",
+      back: "رجوع",
+      next: "التالي",
+      finish: "إنهاء",
+      step: (i, total) => `الخطوة ${i} من ${total}`,
+      complete: "مكتمل",
+      toastAnswer: "يرجى الإجابة قبل المتابعة.",
+      cityNote: "يمكنك كتابة أي مدينة/مكان.",
+      multiNote: "اختر خيارًا واحدًا على الأقل.",
+      doneTitle: "تم!",
+      doneHint: "جارٍ إنشاء ملخص…",
+      summaryTitle: "معلومات مخصصة",
+      contacting: "جارٍ التواصل مع المساعد…",
+      technical: "عرض التفاصيل التقنية (JSON)",
+      copyJson: "نسخ JSON",
+      dlAgain: "تنزيل JSON مرة أخرى",
+      copied: "تم النسخ ✅",
+      copyFail: "فشل النسخ — انسخ يدويًا.",
+      summaryReady: "الملخص جاهز ✅",
+      dlOk: "تم تنزيل JSON ✅",
+      aiFailHint: "تم تنزيل JSON. (ملخص الذكاء الاصطناعي يحتاج خادمًا.)",
+      aiFailBody: (errMsg) =>
+        "تعذر الوصول إلى خدمة الذكاء الاصطناعي.\n\n" +
+        "لتفعيلها، أنشئ نقطة نهاية /api/ai-summary تُرجع:\n" +
+        "{ summary: \"...\" }\n\n" +
+        "الخطأ: " + errMsg
+    },
+    hi: {
+      brandTitle: "समुदाय सर्वे",
+      tipHtml: "<b>टिप:</b> टेक्स्ट वाले सवालों में आगे जाने के लिए <b>Enter</b> दबाएँ।<br/>कुछ भी अपलोड नहीं होता — यह आपके ब्राउज़र में लोकली चलता है।",
+      back: "पीछे",
+      next: "आगे",
+      finish: "समाप्त",
+      step: (i, total) => `चरण ${i} / ${total}`,
+      complete: "पूर्ण",
+      toastAnswer: "कृपया आगे बढ़ने से पहले उत्तर दें।",
+      cityNote: "आप कोई भी शहर/स्थान लिख सकते हैं।",
+      multiNote: "कम से कम 1 विकल्प चुनें।",
+      doneTitle: "हो गया!",
+      doneHint: "सारांश बनाया जा रहा है…",
+      summaryTitle: "व्यक्तिगत जानकारी",
+      contacting: "सहायक से संपर्क किया जा रहा है…",
+      technical: "तकनीकी विवरण दिखाएँ (JSON)",
+      copyJson: "JSON कॉपी करें",
+      dlAgain: "JSON फिर से डाउनलोड करें",
+      copied: "कॉपी हो गया ✅",
+      copyFail: "कॉपी नहीं हुआ — मैन्युअली चुनकर कॉपी करें।",
+      summaryReady: "सारांश तैयार ✅",
+      dlOk: "JSON डाउनलोड ✅",
+      aiFailHint: "आपका JSON डाउनलोड हो गया। (AI सारांश के लिए सर्वर चाहिए।)",
+      aiFailBody: (errMsg) =>
+        "AI सेवा तक नहीं पहुँचा जा सका।\n\n" +
+        "इसे सक्षम करने के लिए /api/ai-summary पर एक बैकएंड एंडपॉइंट बनाएँ जो लौटाए:\n" +
+        "{ summary: \"...text...\" }\n\n" +
+        "Error: " + errMsg
+    }
+  };
+
+  // Current UI language (default English)
+  let uiLang = "en";
+  const t = () => I18N[uiLang] || I18N.en;
+
+  function applyUiLanguage(langCode){
+    uiLang = (I18N[langCode] ? langCode : "en");
+
+    // Set html lang + direction (rtl for Arabic)
+    const isRtl = uiLang === "ar";
+    document.documentElement.lang = uiLang;
+    document.documentElement.dir = isRtl ? "rtl" : "ltr";
+
+    // Update static text areas
+    document.getElementById("brandTitle").textContent = t().brandTitle;
+    document.getElementById("tipText").innerHTML = t().tipHtml;
+
+    // Update button labels (Next changes to Finish later in render)
+    backBtn.textContent = t().back;
+    // nextBtn text is set in render() because it changes to Finish at last step
+  }
+
+  // --- Questions (language question FIRST) ----------------------------------
+
+  const questions = [
+    { key:"language",     title:"What language do you speak?",     hint:"Pick one option (or choose Other).", type:"single",
+      options:["Spanish","English","Mandarin","Arabic","French","Hindi","Other"] },
+
+    { key:"currentCity",  title:"What city are you currently in?", hint:"Type your current city.", type:"text",  placeholder:"e.g., San Jose" },
+    { key:"fromWhere",    title:"Where are you from?",             hint:"Type your hometown or country of origin.", type:"text", placeholder:"e.g., Guadalajara, Mexico" },
+    { key:"englishLevel", title:"What is your English level?",     hint:"Pick one option.", type:"single",
+      options:["Beginner","Intermediate","Advanced","Fluent / Native"] },
+    { key:"age",          title:"What is your age?",               hint:"Numbers only.", type:"number", placeholder:"e.g., 28", min:0, max:120 },
+    { key:"gender",       title:"What is your gender?",            hint:"Pick one option.", type:"single",
+      options:["Female","Male","Non-binary","Prefer not to say","Other"] },
+    { key:"householdSize",title:"How many people are in your household?", hint:"Include yourself.", type:"single",
+      options:["1","2","3","4","5","6+"] },
+    { key:"helpNeeded",   title:"What help do you think you need?", hint:"Select all that apply.", type:"multi",
+      options:[
+        "Food stamps / banks / programs",
+        "Banking / credit / credit cards",
+        "Taxes / filing",
+        "Health",
+        "Insurance",
+        "Habits: saving / investing",
+        "Productivity & time management",
+        "Legal support",
+        "Housing support"
+      ] }
+  ];
+
+  // Translated question text (title/hint/placeholders + some option sets)
+  // If a language is missing here, it falls back to the English in `questions`.
+  const QUESTIONS_I18N = {
+    es: {
+      language: { title:"¿Qué idioma hablas?", hint:"Elige una opción (o ‘Otro’)." },
+      currentCity: { title:"¿En qué ciudad estás actualmente?", hint:"Escribe tu ciudad actual.", placeholder:"ej., San José" },
+      fromWhere: { title:"¿De dónde eres?", hint:"Escribe tu ciudad natal o país de origen.", placeholder:"ej., Guadalajara, México" },
+      englishLevel: { title:"¿Cuál es tu nivel de inglés?", hint:"Elige una opción.",
+        options:["Principiante","Intermedio","Avanzado","Fluido / Nativo"] },
+      age: { title:"¿Cuál es tu edad?", hint:"Solo números.", placeholder:"ej., 28" },
+      gender: { title:"¿Cuál es tu género?", hint:"Elige una opción.",
+        options:["Mujer","Hombre","No binario","Prefiero no decir","Otro"] },
+      householdSize: { title:"¿Cuántas personas hay en tu hogar?", hint:"Inclúyete a ti.", options:["1","2","3","4","5","6+"] },
+      helpNeeded: { title:"¿Qué ayuda crees que necesitas?", hint:"Selecciona todas las que apliquen.",
+        options:[
+          "Cupones de comida / bancos / programas",
+          "Banca / crédito / tarjetas",
+          "Impuestos / declaración",
+          "Salud",
+          "Seguro",
+          "Hábitos: ahorro / inversión",
+          "Productividad y gestión del tiempo",
+          "Apoyo legal",
+          "Apoyo de vivienda"
+        ] }
+    },
+    fr: {
+      language: { title:"Quelle langue parlez-vous ?", hint:"Choisissez une option (ou ‘Autre’)." },
+      currentCity: { title:"Dans quelle ville êtes-vous actuellement ?", hint:"Saisissez votre ville actuelle.", placeholder:"ex. San Jose" },
+      fromWhere: { title:"D’où venez-vous ?", hint:"Votre ville natale ou pays d’origine.", placeholder:"ex. Guadalajara, Mexique" },
+      englishLevel: { title:"Quel est votre niveau d’anglais ?", hint:"Choisissez une option.",
+        options:["Débutant","Intermédiaire","Avancé","Courant / Natif"] },
+      age: { title:"Quel âge avez-vous ?", hint:"Chiffres uniquement.", placeholder:"ex. 28" },
+      gender: { title:"Quel est votre genre ?", hint:"Choisissez une option.",
+        options:["Femme","Homme","Non-binaire","Je préfère ne pas dire","Autre"] },
+      householdSize: { title:"Combien de personnes dans votre foyer ?", hint:"Incluez-vous.", options:["1","2","3","4","5","6+"] },
+      helpNeeded: { title:"De quelle aide pensez-vous avoir besoin ?", hint:"Sélectionnez tout ce qui s’applique.",
+        options:[
+          "Aide alimentaire / banques / programmes",
+          "Banque / crédit / cartes",
+          "Impôts / déclaration",
+          "Santé",
+          "Assurance",
+          "Habitudes : épargne / investissement",
+          "Productivité & gestion du temps",
+          "Aide juridique",
+          "Aide au logement"
+        ] }
+    },
+    zh: {
+      language: { title:"你会说什么语言？", hint:"请选择一种（或选择“其他”）。" },
+      currentCity: { title:"你目前在哪个城市？", hint:"请输入你当前所在城市。", placeholder:"例如：San Jose" },
+      fromWhere: { title:"你来自哪里？", hint:"请输入你的家乡或原籍国家。", placeholder:"例如：墨西哥 瓜达拉哈拉" },
+      englishLevel: { title:"你的英语水平如何？", hint:"请选择一项。", options:["初级","中级","高级","流利 / 母语"] },
+      age: { title:"你的年龄是？", hint:"只输入数字。", placeholder:"例如：28" },
+      gender: { title:"你的性别是？", hint:"请选择一项。", options:["女性","男性","非二元","不愿透露","其他"] },
+      householdSize: { title:"你的家庭有几口人？", hint:"包括你自己。", options:["1","2","3","4","5","6+"] },
+      helpNeeded: { title:"你觉得你需要哪些帮助？", hint:"可多选。",
+        options:[
+          "食品券 / 食物银行 / 项目",
+          "银行 / 信用 / 信用卡",
+          "税务 / 报税",
+          "健康",
+          "保险",
+          "习惯：储蓄 / 投资",
+          "效率与时间管理",
+          "法律援助",
+          "住房援助"
+        ] }
+    },
+    ar: {
+      language: { title:"ما اللغة التي تتحدثها؟", hint:"اختر خيارًا (أو ‘أخرى’)." },
+      currentCity: { title:"في أي مدينة تقيم حاليًا؟", hint:"اكتب مدينتك الحالية.", placeholder:"مثال: San Jose" },
+      fromWhere: { title:"من أين أنت؟", hint:"اكتب مدينتك الأصلية أو بلد المنشأ.", placeholder:"مثال: Guadalajara, Mexico" },
+      englishLevel: { title:"ما مستوى لغتك الإنجليزية؟", hint:"اختر خيارًا.",
+        options:["مبتدئ","متوسط","متقدم","طليق / لغة أم"] },
+      age: { title:"كم عمرك؟", hint:"أرقام فقط.", placeholder:"مثال: 28" },
+      gender: { title:"ما جنسك؟", hint:"اختر خيارًا.",
+        options:["أنثى","ذكر","غير ثنائي","أفضل عدم الإجابة","أخرى"] },
+      householdSize: { title:"كم عدد الأشخاص في أسرتك؟", hint:"بما فيهم أنت.", options:["1","2","3","4","5","6+"] },
+      helpNeeded: { title:"ما المساعدة التي تعتقد أنك تحتاجها؟", hint:"اختر كل ما ينطبق.",
+        options:[
+          "مساعدات غذائية / بنوك الطعام / برامج",
+          "بنوك / ائتمان / بطاقات",
+          "ضرائب / تقديم الإقرار",
+          "الصحة",
+          "التأمين",
+          "عادات: ادخار / استثمار",
+          "الإنتاجية وإدارة الوقت",
+          "مساعدة قانونية",
+          "مساعدة سكن"
+        ] }
+    },
+    hi: {
+      language: { title:"आप कौन-सी भाषा बोलते हैं?", hint:"एक विकल्प चुनें (या ‘Other’)." },
+      currentCity: { title:"आप अभी किस शहर में हैं?", hint:"अपना वर्तमान शहर लिखें।", placeholder:"जैसे, San Jose" },
+      fromWhere: { title:"आप कहाँ से हैं?", hint:"अपना गृह-शहर या मूल देश लिखें।", placeholder:"जैसे, Guadalajara, Mexico" },
+      englishLevel: { title:"आपका अंग्रेज़ी स्तर क्या है?", hint:"एक विकल्प चुनें।",
+        options:["शुरुआती","मध्यम","उन्नत","धाराप्रवाह / मातृभाषा"] },
+      age: { title:"आपकी उम्र क्या है?", hint:"केवल नंबर।", placeholder:"जैसे, 28" },
+      gender: { title:"आपका जेंडर क्या है?", hint:"एक विकल्प चुनें।",
+        options:["महिला","पुरुष","नॉन-बाइनरी","बताने में असहज","अन्य"] },
+      householdSize: { title:"आपके घर में कितने लोग हैं?", hint:"अपने आप को शामिल करें।", options:["1","2","3","4","5","6+"] },
+      helpNeeded: { title:"आपको किस तरह की मदद चाहिए?", hint:"जो लागू हों वे चुनें।",
+        options:[
+          "फूड स्टैम्प / फूड बैंक / प्रोग्राम",
+          "बैंकिंग / क्रेडिट / क्रेडिट कार्ड",
+          "टैक्स / फाइलिंग",
+          "स्वास्थ्य",
+          "बीमा",
+          "आदतें: बचत / निवेश",
+          "उत्पादकता व समय प्रबंधन",
+          "कानूनी सहायता",
+          "हाउसिंग सहायता"
+        ] }
+    }
+  };
+
+  function getQuestionText(q){
+    const bundle = QUESTIONS_I18N[uiLang]?.[q.key];
+    return {
+      title: bundle?.title ?? q.title,
+      hint: bundle?.hint ?? q.hint,
+      placeholder: bundle?.placeholder ?? q.placeholder,
+      options: bundle?.options ?? q.options
+    };
+  }
+
+  // --- Survey state ---------------------------------------------------------
+
+  let step = 0;
+  const answersState = {};
+
+  const el = (id) => document.getElementById(id);
+  const qTitle = el("qTitle");
+  const qHint  = el("qHint");
+  const answers = el("answers");
+  const backBtn = el("backBtn");
+  const nextBtn = el("nextBtn");
+  const bar = el("bar");
+  const stepText = el("stepText");
+  const toast = el("toast");
+  const summaryMount = el("summaryMount");
+
+  function tickClock(){
+    const d = new Date();
+    el("clock").textContent = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  function setToast(msg){ toast.textContent = msg || " "; }
+
+  function progress(){
+    const total = questions.length;
+    const pct = (step / total) * 100;
+    bar.style.width = `${Math.max(6, pct)}%`;
+    stepText.textContent = t().step(Math.min(step+1,total), total);
+  }
+
+  function canGoNext(){
+    const q = questions[step];
+    const v = answersState[q.key];
+
+    if (q.type === "text")   return typeof v === "string" && v.trim().length > 0;
+    if (q.type === "number") return Number.isFinite(v) && v >= (q.min ?? -Infinity) && v <= (q.max ?? Infinity);
+    if (q.type === "single") return typeof v === "string" && v.length > 0;
+    if (q.type === "multi")  return Array.isArray(v) && v.length > 0;
+    return false;
+  }
+
+  function updateNextDisabled(){
+    nextBtn.disabled = !canGoNext();
+  }
+
+  function render(){
+    summaryMount.innerHTML = "";
+    answers.innerHTML = "";
+    setToast("");
+
+    const q = questions[step];
+    const qt = getQuestionText(q);
+
+    qTitle.textContent = qt.title;
+    qHint.textContent  = qt.hint || "";
+
+    backBtn.disabled = (step === 0);
+    progress();
+
+    if (q.type === "text"){
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = qt.placeholder || "";
+      input.value = answersState[q.key] ?? "";
+      input.autocomplete = "off";
+      input.addEventListener("input", () => {
+        answersState[q.key] = input.value;
+        updateNextDisabled();
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !nextBtn.disabled) next();
+      });
+
+      wrap.appendChild(input);
+
+      const note = document.createElement("div");
+      note.className = "smallNote";
+      note.textContent = t().cityNote;
+      wrap.appendChild(note);
+
+      answers.appendChild(wrap);
+    }
+
+    if (q.type === "number"){
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.placeholder = qt.placeholder || "";
+      if (q.min != null) input.min = q.min;
+      if (q.max != null) input.max = q.max;
+
+      const current = answersState[q.key];
+      input.value = Number.isFinite(current) ? String(current) : "";
+
+      input.addEventListener("input", () => {
+        const num = Number(input.value);
+        answersState[q.key] = Number.isFinite(num) ? num : NaN;
+        updateNextDisabled();
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !nextBtn.disabled) next();
+      });
+
+      wrap.appendChild(input);
+
+      const note = document.createElement("div");
+      note.className = "smallNote";
+      // Keep this note simple / neutral across langs (optional to translate more)
+      note.textContent = `${q.min ?? 0}–${q.max ?? 120}`;
+      wrap.appendChild(note);
+
+      answers.appendChild(wrap);
+    }
+
+    if (q.type === "single"){
+      const grid = document.createElement("div");
+      grid.className = "optionGrid";
+
+      const current = answersState[q.key] ?? "";
+      (qt.options || []).forEach(opt => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "opt" + (current === opt ? " selected" : "");
+        btn.textContent = opt;
+
+        btn.addEventListener("click", () => {
+          answersState[q.key] = opt;
+
+          // If they just selected LANGUAGE (step 0), switch the whole UI language immediately.
+          if (q.key === "language"){
+            const map = LANGUAGE_MAP[opt] || LANGUAGE_MAP.Other;
+            applyUiLanguage(map.code);
+          }
+
+          render();
+          updateNextDisabled();
+        });
+
+        grid.appendChild(btn);
+      });
+
+      answers.appendChild(grid);
+    }
+
+    if (q.type === "multi"){
+      const wrap = document.createElement("div");
+      wrap.className = "pillWrap";
+
+      const currentSet = new Set(answersState[q.key] ?? []);
+
+      const qtOptions = qt.options || [];
+      qtOptions.forEach(opt => {
+        const label = document.createElement("label");
+        label.className = "pill";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = currentSet.has(opt);
+
+        cb.addEventListener("change", () => {
+          if (cb.checked) currentSet.add(opt);
+          else currentSet.delete(opt);
+          answersState[q.key] = Array.from(currentSet);
+          updateNextDisabled();
+        });
+
+        const text = document.createElement("span");
+        text.textContent = opt;
+
+        label.appendChild(cb);
+        label.appendChild(text);
+        wrap.appendChild(label);
+      });
+
+      answers.appendChild(wrap);
+
+      const note = document.createElement("div");
+      note.className = "smallNote";
+      note.textContent = t().multiNote;
+      answers.appendChild(note);
+    }
+
+    nextBtn.textContent = (step === questions.length - 1) ? t().finish : t().next;
+    backBtn.textContent = t().back;
+    updateNextDisabled();
+  }
+
+  function buildPayload(){
+    const answersByKey = {};
+    const answersWithLabels = {};
+
+    questions.forEach(q => {
+      const v = answersState[q.key] ?? null;
+      answersByKey[q.key] = v;
+
+      // use localized label for readability
+      const qt = getQuestionText(q);
+      answersWithLabels[qt.title] = v;
+    });
+
+    const selected = answersState.language || "Other";
+    const langMeta = LANGUAGE_MAP[selected] || LANGUAGE_MAP.Other;
+
+    return {
+      submittedAt: new Date().toISOString(),
+      schemaVersion: 2,
+      uiLanguage: langMeta.code,                  // e.g. "es"
+      responseLanguageName: langMeta.name,        // e.g. "Spanish"
+      answersByKey,
+      answersWithLabels,
+      // For your backend to forward directly to the model:
+      instruction:
+        `Respond in ${langMeta.name}. Keep it friendly, clear, and actionable.`
+    };
+  }
+
+  function downloadJSON(obj, filename){
+    const json = JSON.stringify(obj, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeHTML(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+// Turns URLs (and [text](url)) into clickable links + keeps line breaks.
+function linkifyText(raw){
+  let s = escapeHTML(raw || "");
+
+  // Markdown links: [label](https://example.com)
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) => {
+    const safeLabel = escapeHTML(label);
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
+  });
+
+  // Plain URLs
+  s = s.replace(/(https?:\/\/[^\s<]+[^\s<\.)\]])/g, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+
+  // Newlines -> <br>
+  s = s.replace(/\n/g, "<br>");
+  return s;
+}
+
+function downloadText(text, filename, mime="text/plain"){
+  const blob = new Blob([text ?? ""], { type: mime });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+
+  async function sendToAI(payload){
+    const res = await fetch("/api/ai-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok){
+      const text = await res.text().catch(() => "");
+      throw new Error(`AI endpoint failed (${res.status}). ${text}`);
+    }
+
+    const data = await res.json();
+    return data.summary;
+  }
+
+  async function showSummary(){
+    answers.innerHTML = "";
+    qTitle.textContent = t().doneTitle;
+    qHint.textContent = t().doneHint;
+    backBtn.disabled = false;
+    nextBtn.disabled = true;
+
+    bar.style.width = "100%";
+    stepText.textContent = t().complete;
+
+    const payload = buildPayload();
+
+    let latestAiText = ""; // will fill after API returns
+
+    const dlPayloadBtn = document.createElement("button");
+    dlPayloadBtn.className = "btn";
+    dlPayloadBtn.type = "button";
+    dlPayloadBtn.textContent = "Download survey JSON";
+    dlPayloadBtn.addEventListener("click", () => downloadJSON(payload, "survey-response.json"));
+
+    const dlAiBtn = document.createElement("button");
+    dlAiBtn.className = "btn";
+    dlAiBtn.type = "button";
+    dlAiBtn.textContent = "Download AI response";
+    dlAiBtn.disabled = true;
+    dlAiBtn.addEventListener("click", () => {
+    downloadText(latestAiText, "ai-response.txt", "text/plain");
+    });
+
+
+    const summary = document.createElement("div");
+    summary.className = "summary";
+
+    const h = document.createElement("h3");
+    h.textContent = t().summaryTitle;
+    summary.appendChild(h);
+
+    const readable = document.createElement("div");
+    readable.className = "readable";
+    readable.innerHTML = linkifyText(t().contacting);
+    summary.appendChild(readable);
+    const aiActions = document.createElement("div");
+    aiActions.className = "ai-actions";
+
+    // Hide until AI response arrives (so it's not confusing)
+    dlAiBtn.style.display = "none";
+
+    aiActions.appendChild(dlAiBtn);
+    summary.appendChild(aiActions);
+
+    const details = document.createElement("details");
+    const sum = document.createElement("summary");
+    sum.textContent = t().technical;
+    details.appendChild(sum);
+
+    const pre = document.createElement("pre");
+    pre.textContent = JSON.stringify(payload, null, 2);
+    details.appendChild(pre);
+
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.gap = "10px";
+    row.style.marginTop = "10px";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "btn primary";
+    copyBtn.type = "button";
+    copyBtn.textContent = t().copyJson;
+    copyBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(pre.textContent);
+        setToast(t().copied);
+      }catch{
+        setToast(t().copyFail);
+      }
+    });
+
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "btn";
+    downloadBtn.type = "button";
+    downloadBtn.textContent = t().dlAgain;
+    downloadBtn.addEventListener("click", () => downloadJSON(payload, "survey-response.json"));
+
+    row.appendChild(copyBtn);
+    row.appendChild(dlPayloadBtn);
+    row.appendChild(dlAiBtn);
+    row.appendChild(downloadBtn);
+    details.appendChild(row);
+
+    summary.appendChild(details);
+    summaryMount.innerHTML = "";
+    summaryMount.appendChild(summary);
+
+    try {
+      const aiText = await sendToAI(payload);
+    latestAiText = aiText || "";
+    readable.innerHTML = linkifyText(aiText || "—");
+    dlAiBtn.disabled = !latestAiText;
+    dlAiBtn.style.display = "inline-flex";
+
+      qHint.textContent = ""; // keep it clean
+      setToast(t().summaryReady);
+    } catch (err) {
+      const msg = t().aiFailBody(err?.message || String(err));
+      latestAiText = msg;
+      readable.innerHTML = linkifyText(msg);
+      dlAiBtn.disabled = false; // let them download the error text too if you want
+
+      qHint.textContent = t().aiFailHint;
+      setToast(t().dlOk);
+    }
+  }
+
+  function next(){
+    if (!canGoNext()){
+      setToast(t().toastAnswer);
+      return;
+    }
+    if (step === questions.length - 1){
+      showSummary();
+      return;
+    }
+    step++;
+    render();
+  }
+
+  function back(){
+    if (step > 0){
+      step--;
+      render();
+    }
+  }
+
+  backBtn.addEventListener("click", back);
+  nextBtn.addEventListener("click", next);
+
+  // Init UI (English)
+  applyUiLanguage("en");
+  render();
+</script>
+</body>
+</html>
