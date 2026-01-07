@@ -5,6 +5,8 @@
   "main": "server2.mjs",
   "scripts": {
     "start": "node server2.mjs"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
-
