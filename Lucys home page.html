@@ -133,6 +133,8 @@ p{color:var(--muted);font-size:1.1rem;max-width:720px}
     <button class="call311" id="btnCall311Top">📞 <span id="call311">Call 311</span></button>
     <button class="call911" id="btnCall911Top">🚨 <span id="call911">Call 911</span></button>
 
+    <button class="primary" id="btnStartSurveyTop">Start Survey</button>
+
     <div id="profileBox"
      style="display:flex;align-items:center;gap:0.6rem;margin-left:1rem;
             font-weight:500;color:var(--dark-green);
@@ -895,19 +897,31 @@ function renderHome(){
 
   main.innerHTML = `
     <section class="hero-content">
-      <span class="badge" id="badge">● Free & Multilingual</span>
-      <h1><span id="headline1">Find Local Help</span><br/><span class="highlight" id="headline2">When You Need It Most</span></h1>
-      <p id="subtext">Get connected to trusted U.S. resources for food, health, housing, and more — in your language.</p>
-      <div class="cta">
-        <button class="primary" id="btnLogin">Log In</button>
-        <button class="secondary" id="btnSignup">Sign Up</button>
+      <span class="badge" style="background:rgba(255,255,255,0.65);border:1px solid rgba(0,106,78,0.20);">
+        🏛 Built for the 2025–2026 Presidential AI Challenge
+      </span>
+
+      <h1><span id="headline1">Find Local Help</span><br/>
+        <span class="highlight" id="headline2">When You Need It Most</span>
+      </h1>
+
+      <p style="font-size:1.25rem;max-width:760px;margin-top:.6rem;">
+        A free AI guide that helps families and immigrants find trusted local services in minutes.
+      </p>
+
+      <ul style="margin:1.2rem 0 0;padding-left:1.2rem;color:var(--muted);font-size:1.05rem;line-height:1.6;">
+        <li>✅ Answer a few simple questions</li>
+        <li>🤖 Get personalized local resources</li>
+        <li>📍 Access verified help near you</li>
+      </ul>
+
+      <div class="cta" style="margin-top:1.6rem;">
+        <button class="primary" id="btnStartSurveyHero">Start Survey</button>
+        <button class="secondary" id="btnBrowseHero">Browse All Resources</button>
       </div>
+
       <div class="features">
-        <span id="f1">✔ Verified Resources</span>
-        <span id="f2">🌐 10+ Languages</span>
-        <span id="f3">💚 100% Free</span>
-      </div>
-    </section>
+
 
     <section class="home-panel" id="howItWorks">
       <h2 class="home-title" id="howTitle">How It Works</h2>
@@ -1055,6 +1069,8 @@ function navTo(url){
 
 /* Nav actions */
 document.getElementById("navFind").addEventListener("click", ()=> navTo("/survey.html"));
+document.getElementById("btnStartSurveyTop")
+  .addEventListener("click", ()=> navTo("/survey.html"));
 document.getElementById("navBrowse").addEventListener("click", ()=> navTo("/access_to_local_help.html"));
 document.getElementById("navMore").addEventListener("click", showMore);
 document.getElementById("navHome").addEventListener("click", ()=>{
@@ -1141,6 +1157,12 @@ function wireHomeButtons(){
   const togglePassword = document.getElementById("togglePassword");
   const btnSignup = document.getElementById("btnSignup");
   const btnLogin = document.getElementById("btnLogin");
+  const btnStartSurveyHero = document.getElementById("btnStartSurveyHero");
+if (btnStartSurveyHero) btnStartSurveyHero.onclick = () => navTo("/survey.html");
+
+const btnBrowseHero = document.getElementById("btnBrowseHero");
+if (btnBrowseHero) btnBrowseHero.onclick = () => navTo("/access_to_local_help.html");
+
 
   if (btnSignup) btnSignup.onclick = () => {
   resetSignup();
