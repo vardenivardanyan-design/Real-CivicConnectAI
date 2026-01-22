@@ -818,40 +818,6 @@ function applyLanguage(lang){
 
   updateProfileDisplay();
 }
-function openLoginModal() {
-  const modal = document.getElementById("modalOverlay");
-  const modalContent = document.getElementById("modalContent");
-
-  // remove any old account view
-  modalContent.querySelectorAll(".accountView").forEach(e => e.remove());
-
-  // clear info text
-  document.getElementById("modalBody").innerHTML = "";
-
-  // set title and show login form (step1)
-document.querySelector(".closeModal").addEventListener("click", () => {
-  const modal = document.getElementById("modalOverlay");
-  const modalContent = document.getElementById("modalContent");
-
-  modal.style.display = "none";
-
-  // FULL RESET
-  modalContent.querySelectorAll(".accountView").forEach(e => e.remove());
-  document.getElementById("modalBody").innerHTML = "";
-
-  // ✅ default to step1 visible so login always works next time
-  document.getElementById("signupStep1").style.display = "flex";
-  document.getElementById("signupStep2").style.display = "none";
-  document.getElementById("signupStep3").style.display = "none";
-});
-
-
-  modal.style.display = "flex";
-  applyLanguage(languageSelect.value);
-
-  const emailEl = document.getElementById("signupEmail");
-  if (emailEl) emailEl.focus();
-}
 
 function openAccountModal() {
   const modal = document.getElementById("modalOverlay");
